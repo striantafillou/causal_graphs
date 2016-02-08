@@ -1,0 +1,14 @@
+Graph functions
+ hascycle
+ hasalmostcycle
+ hasinducingpathmcg
+ hasinducingpathdag
+ findmseparations
+ finddescendants
+ findancestors
+ printedgesmcg
+ randomdag
+ manipulatesmm	
+ manipulatedag
+ dag2mag 
+ 
