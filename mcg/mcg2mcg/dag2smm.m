@@ -26,7 +26,7 @@ arrows  = smm==2; tails =smm==3;
 observedVars = ~isLatent;
 latentDag = dag;
 latentDag(observedVars, observedVars) = 0;
-descendants = AllPairsDescendants_mex(sparse(latentDag));
+descendants = transitiveClosureSparse_mex(sparse(latentDag));
 
 
 
