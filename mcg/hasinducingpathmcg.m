@@ -1,4 +1,4 @@
-function hasIndPath = hasInducingPathMcg(X, Y, mcg, isAncestor, isLatent, verbose)
+function hasIndPath = hasinducingpathmcg(X, Y, mcg, isAncestor, isLatent, verbose)
 % function bool = hasInducingPathMcg(X, Y, mcg, isAncestor, isLatent, verbose)
 % returns true if variables X and Y are connected in graph mcg by an
 % inducing path with respect to variables find(isLatent).
@@ -72,8 +72,10 @@ while(curQ)
             if verbose
                 fprintf('Testing edge %d-%d-%d\n',curX,curY,i);
             end
-            if (isLatent(curY) && ~isCollider(curX, curY, i, mcg)==0) ||...
-                    (~isNonCollider(curX, curY, i, mcg) && any(isAncestor(curY, [X, Y])))
+%             if (isLatent(curY) && ~isCollider(curX, curY, i, mcg)==0) ||...
+%                     (~isNonCollider(curX, curY, i, mcg) && any(isAncestor(curY, [X, Y])))
+            if (isLatent(curY) && ~isCollider(curX, curY, i, mcg)) ||...
+                     (isCollider(curX, curY, i, mcg) && any(isAncestor(curY, [X, Y])))
                 if verbose
                     fprintf('\t latent or possible colliders, adding %d to neighbors\n', i);
                 end

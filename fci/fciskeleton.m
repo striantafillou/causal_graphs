@@ -126,7 +126,9 @@ while n<maxCondSetSize
                 if verbose
                     fprintf('\t\t Independence NOT accepted, p-value %s\n', num2str(p))
                 end
-                [pvalues(X, Y), ind] = max([pvalues(X, Y), pvalues(Y, X), p]); pvalues(Y, X) = pvalues(Y, X);
+                % TODO here maybe it is better to compare stats in case of
+                % ties.
+                [pvalues(X, Y), ind] = max([pvalues(X, Y), pvalues(Y, X), p]); pvalues(Y, X) = pvalues(X, Y);
                 if ind ==3
                     maxSepSet(X, Y, :) = 0; maxSepSet(Y, X, :) = 0; maxSepSet(X, Y, condset) =1; maxSepSet(Y, X, condset)=1;
                 end
@@ -185,4 +187,7 @@ while n<maxCondSetSize
         end % end for iEdge
     end % end if pdSep
 end % end while 
+
+% pvalues = max(pvalues, pvalues');
+end
             

@@ -12,15 +12,15 @@ fprintf('Variable 5 is hidden\n');
 isLatent = [false false false false true];
 %
 fprintf('SMCM:\n')
-smm=dag2smm(dag, isLatent);
+smm = dag2smm(dag, isLatent);
 printedgesmcg(smm);
 
 fprintf('MAG:\n')
-dag2mag(dag, isLatent);
+mag = dag2mag(dag, isLatent);
 printedgesmcg(mag);
 
 fprintf('PAG:\n')
-mag2pag(mag);
+pag = mag2pag(mag);
 printedgesmcg(pag);
 
 % smm has almost cycle

@@ -23,7 +23,8 @@ isLatent= false(nVars, 1);
 for X = 1:nVars-1
     for Y =  X+1:nVars 
         % if the pair are adjacent in the smm or 3 inducing path given empty set
-        if smm(X, Y) || hasinducingpathmcg(X, Y, smm, isAncestor, isLatent, false);
+        hasIndPath = hasinducingpathmcg(X, Y, smm, isAncestor, isLatent, false);
+        if smm(X, Y) || hasIndPath
             if isAncestor(X, Y);
                 mag(X, Y) = 2;
                 mag(Y, X) = 3;

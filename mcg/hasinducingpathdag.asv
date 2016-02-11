@@ -71,12 +71,12 @@ while(curQ)
             fprintf('Testing triple %d-%d-%d\n',curX,curY,i);
         end
         % every 
-        if (isLatent(curY) && ~isCollider(curX, curY, i, dag)) ||...
+        if (isLatent(curY) && ~isCollider(curX, curY, i, dag)==0) ||...
                 (isCollider(curX, curY, i, dag) && any(isAncestor(curY, [X, Y])))
             if verbose
                 fprintf('\t latent or possible colliders, adding %d to neighbors\n', i);
             end
-            neighbors = [neighbors i];
+            neighbors = [neighbors i]
             if(i == Y)
                 hasIndPath = true;
                 return;
