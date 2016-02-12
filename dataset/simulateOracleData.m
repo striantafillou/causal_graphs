@@ -1,5 +1,5 @@
-function gdataset = simulateOracleData(graph, varargin)
-% function gdataset = simulateOracleData(graph, varargin)
+function gdataset = simulateoracledata(graph, varargin)
+% function gdataset = simulateoracledata(graph, varargin)
 % creates pseudodataset gdataset to be used in oracle versions of all
 % algorithms with 'msep' test of independence
 % Author: striant@csd.uoc.gr
@@ -24,10 +24,10 @@ function gdataset = simulateOracleData(graph, varargin)
 numNodes = length(graph);
 [isLatent, isManipulated] = process_options(varargin, 'isLatent',  false(1, numNodes),'isManipulated', false(1, numNodes));
 gdataset.data = dag2smm(graph, isLatent);
-gdataset.domainCounts = AllPairsDescendants_mex(sparse(graph));
+gdataset.isAncestor = transitiveClosureSparse_mex(sparse(graph));
 
 gdataset.isLatent = isLatent;
 gdataset.isManipulated = isManipulated;
-
+gdataset.type = 'oracle';
 
 end

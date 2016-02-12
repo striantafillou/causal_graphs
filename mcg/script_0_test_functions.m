@@ -14,15 +14,17 @@ isLatent = [false false false false true];
 fprintf('SMCM:\n')
 smm = dag2smm(dag, isLatent);
 printedgesmcg(smm);
+writecytomcg(smm, 'smm.txt');
 
 fprintf('MAG:\n')
 mag = dag2mag(dag, isLatent);
 printedgesmcg(mag);
+writecytomcg(mag, 'mag.txt');
 
 fprintf('PAG:\n')
 pag = mag2pag(mag);
 printedgesmcg(pag);
-
+writecytomcg(pag, 'pag.txt');
 % smm has almost cycle
 hasalmostcycle(smm)
 

@@ -73,12 +73,12 @@ if isequal(type, 'discrete');
 
             %firstly, let's sample...
             node.parents = [];
-            node.cpt = dirichletSample(0.5*ones(1,numStates),1);
+            node.cpt = dirichletsample(0.5*ones(1,numStates),1);
 
         else
 
             %agin, sampling
-            node.cpt = dirichletSample(0.5*ones(1,numStates), domainCounts(node.parents));
+            node.cpt = dirichletsample(0.5*ones(1,numStates), domainCounts(node.parents));
 
         end
 
@@ -106,7 +106,7 @@ elseif isequal(type, 'gaussian') % gaussian
 
 end
 end
-function theta = dirichletSample(alpha, dims)
+function theta = dirichletsample(alpha, dims)
 % SAMPLE_DIRICHLET Sample N vectors from Dir(alpha(1), ..., alpha(k))
 % theta = sample_dirichlet(alpha, N)
 % theta(i,j) = i'th sample of theta_j, where theta ~ Dir

@@ -75,15 +75,8 @@ if verbose
     fprintf('Step1. Identifying skeleton\n');
 end
 [graph, sepSet,pvalues,maxSepSet] = fciskeleton(dataset, test, heuristic, alpha, maxK,  pdSep, verbose);
-if verbose
-    fprintf('Step2. Orientations\n');
-end
-if cons
-else
-    [graph, dnc,  cols] = R0(graph, sepSet, verbose);
-    % Iteratively apply rules R1-R4 until none of them applies
-    [graph, ddnc, dcols, ~] = FCI_rules_magR12R4(graph, sepSet, verbose);
-end
+
+[graph, definiteNonColliders,  colliders] = R0(graph, sepSet, verbose);
 
 % Apply orientation rules
 % Apply R0: Orient unshielded colliders
@@ -99,14 +92,14 @@ end
 %     [graph, ddnc, dcol, ~] = FCI_rules_magR12R4(graph, sepSet, verbose);
 % end
 
-pag.graph = graph;
-pag.ddnc = ddnc;
-pag.dcolliders = dcols;
-pag.colliders = cols;
-pag.dnc = dnc;
-pag.pvalues = pvalues;
-pag.sepSet = sepSet;
-pag.maxSepSet = maxSepSet;
+ pag.graph = graph;
+% pag.ddnc = ddnc;
+% pag.dcolliders = dcol;
+ pag.colliders = colliders;
+ pag.dnc = definiteNonColliders;
+ pag.pvalues = pvalues;
+ pag.sepSet = sepSet;
+ pag.maxSepSet = maxSepSet;
 end
 
 function [graph, ddnc, dcol, flagcount] = FCI_rules_magR12R4(graph, sepSet, verbose)
@@ -132,7 +125,7 @@ len = length(Xs);
 for i = 1:len
     if(graph(Xs(i),Ys(i)) == 1 && any(graph(:,Ys(i)) == 2 & graph(:,Xs(i)) == 0))
         if(verbose)
-            fprintf('\tR1: Orienting %d->%d\n',Ys(i),Xs(i));
+            fprintf('R1: Orienting %d->%d\n',Ys(i),Xs(i));
         end
         graph(Ys(i),Xs(i)) = 2;
         graph(Xs(i),Ys(i)) = 3;
@@ -150,7 +143,7 @@ len = length(Xs);
 for i = 1:len
     if(graph(Xs(i),Zs(i)) == 1 && any(graph(Xs(i),:) == 2 & graph(:,Zs(i))' == 2 & (graph(:,Xs(i))' == 3 | graph(Zs(i),:) == 3)))
         if(verbose)
-            fprintf('\tR2: Orienting %d*->%d\n',Xs(i),Zs(i));
+            fprintf('R2: Orienting %d*->%d\n',Xs(i),Zs(i));
         end
         graph(Xs(i),Zs(i)) = 2;
         flag = 1;
@@ -173,7 +166,7 @@ for i = 1:nedges
         for k = j+1:len
             if(graph(a(j),a(k)) == 0 && graph(Ths(i),Ys(i)) == 1)
                 if(verbose)
-                    fprintf('\tR3: Orienting %d*->%d\n',Ths(i),Ys(i));
+                    fprintf('R3: Orienting %d*->%d\n',Ths(i),Ys(i));
                 end
                 graph(Ths(i),Ys(i)) = 2;
                 flag = 1;
@@ -243,14 +236,14 @@ for curc = 1:nnodes
             if(graph(curb,cura) == 2)
                 if(any(closure(th,cura) & sepSet(th,curc,curb)))
                     if verbose
-                        fprintf('\tR4: Orienting %s ... %d->%d\n', num2str(find(closure(th,cura) & sepSet(th,curc,curb))), curb,curc);
+                        fprintf('R4: Orienting %s ... %d->%d\n', num2str(find(closure(th,cura) & sepSet(th,curc,curb))), curb,curc);
                     end
                     graph(curb, curc) = 2;
                     graph(curc, curb) = 3;
                     ddnc = [ddnc; cura curb curc];
                 else
                     if verbose
-                        fprintf('\tR4: Orienting %s, ... %d<->%d\n', num2str(find(closure(th,cura) & sepSet(th,curc,curb))), curb,curc);
+                        fprintf('R4: Orienting %s, ... %d<->%d\n', num2str(find(closure(th,cura) & sepSet(th,curc,curb))), curb,curc);
                     end
                     graph(curb, curc) = 2;
                     graph(curc, curb) = 2;
@@ -274,7 +267,7 @@ for i = 1:nedges
     out = find(G(:,r(i)) == 3);
     if(any(G(out,c(i)) == 2 & G(c(i),out)' == 3))
         if(verbose)
-            fprintf('\tR8: Orienting %d->%d\n',r(i),c(i));
+            fprintf('R8: Orienting %d->%d\n',r(i),c(i));
         end
         G(c(i),r(i)) = 3;
         flag = 1;
@@ -296,7 +289,7 @@ for i = 1:nedges
     G_ = orientDnc_mex(G_, c(i), r(i));
     if(isReachablePag_mex(G_,r(i),c(i)))
         if(verbose)
-            fprintf('\tR9: Orienting %d*--%d\n',c(i),r(i));
+            fprintf('R9: Orienting %d*--%d\n',c(i),r(i));
         end
         G(c(i),r(i)) = 3;
         flag = 1;
@@ -349,7 +342,7 @@ for s = 1:length(G)
             end
             
             if(verbose)
-                fprintf('\tR10: Orienting %d*--%d\n',t,s);
+                fprintf('R10: Orienting %d*--%d\n',t,s);
             end
             G(t,s) = 3;
             flag = 1;

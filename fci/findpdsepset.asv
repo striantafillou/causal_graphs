@@ -9,13 +9,13 @@ tmppag=  pag;
 tmppag(Y, X) = 0;
 tmppag(X, Y)= 0;
 %Find nodes V that are adjacent to Node A and Ao->V 
-neighborsX =  find(tmppag(X, :));
-queue = neighborsX;
-pdset = neighborsX;
+neighbors =  find(tmppag(X, :));
+queue = neighbors;
+pdset = neighbors;
 p = X*ones(1,length(queue));
 
-tmppag(X, neighborsX) = 0; %delete edges to neighbors
-tmppag(neighborsX, X) = 0;
+tmppag(X, neighbors) = 0; %delete edges to neighbors
+tmppag(neighbors, X) = 0;
 
 while~isempty(queue)
     V =  queue(1);
@@ -26,28 +26,25 @@ while~isempty(queue)
 
     
     p = p(2:end);
-    curNeighbors = setdiff(find(tmppag(V, :)), Y);
+    neighbors = setdiff(find(tmppag(V, :)), Y);
     
-    if ~isempty(curNeighbors)
-        for W = curNeighbors   
+    if ~isempty(neighbors)
+        for W = neighbors   
            if verbose; fprintf('Now checking triple %d-%d-%d\n', U, V, W);end
-            if ispdseptriple(pag, U, V, W)
+            if ispdseptriple(pag, U, V, W, X, Y, verbose)
                 tmppag(V, W) = 0;
                 tmppag(W, V) = 0;
                 queue = [queue W];       
                 p = [p V];
                 pdset = [pdset W];   
-                 if verbose; fprintf('Triple %d-%d-%d is legal\n Added %d in queue of possible d separating nodes\n', U, V,  W, W);end                
+                 if verbose; fprintf('Triple %d-%d-%d is legal\n Added %d in queue of possible d separating nodes\n',...
+                     U, V,  W, W);end                
             end %end if
         end%end for
     end%end if
 end%end while
         
-if isempty(setdiff(pdset, neighborsX))
-    pdset =[];
-else
-    pdset =  unique(pdset);
-end
+pdset =  unique(pdset);
 end %end function
   
 

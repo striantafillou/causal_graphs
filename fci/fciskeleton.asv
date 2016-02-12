@@ -126,7 +126,7 @@ while n<maxCondSetSize
                 break;
             else
                 if verbose
-                    fprintf('\t\t\t Independence NOT accepted, p-value %s\n', num2str(p))
+                    fprintf('\t\t Independence NOT accepted, p-value %s\n', num2str(p))
                 end
                 % TODO here maybe it is better to compare stats in case of
                 % ties.
@@ -152,7 +152,7 @@ if pdSep==1
             continue;
         end
         fprintf('\t Checking %d-%d, p-value %.3f\n', X, Y, pvalues(X, Y));
-        pdSepSet =  findpdsepset(pag, X, Y, false);
+        pdSepSet =  findpdsepset(pag, X, Y, verbose);
         fprintf('\t Pdseparating set %s\n', num2str(pdSepSet));
         if isempty(pdSepSet)
             continue;

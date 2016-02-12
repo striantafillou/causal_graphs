@@ -60,6 +60,7 @@ if isequal(type, 'discrete')
     data=data-1;
     dataset.data = data;
     dataset.domainCounts = domainCounts;
+    dataset.type = 'disc';
 elseif isequal(type, 'gaussian')
 %first step: creating the dataset
     edges=0;
@@ -90,6 +91,7 @@ elseif isequal(type, 'gaussian')
     end 
     dataset.data = data;
     dataset.domainCounts =[];
+    dataset.type = 'cont';
 else % type is unknown
     errprintf('Unknown data type:%s\n', type);
     dataset = nan;

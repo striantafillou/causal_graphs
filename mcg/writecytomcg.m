@@ -3,7 +3,7 @@ fid = fopen(fileName, 'w');
 
 nVars = length(mcg);
 if nargin==2
-    headers = strsplit(sprintf('X%d ', 1:10), ' ');
+    headers = strsplit(sprintf('X%d ', 1:nVars), ' ');
     headers = headers(1:nVars);
 end
 
