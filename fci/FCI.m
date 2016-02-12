@@ -81,9 +81,24 @@ end
 if cons
 else
     [graph, dnc,  cols] = R0(graph, sepSet, verbose);
-    % Iteratively apply rules R1-R4 until none of them applies
-    [graph, ddnc, dcols, ~] = FCI_rules_magR12R4(graph, sepSet, verbose);
 end
+% Iteratively apply rules R1-R4 until none of them applies
+flag=1;
+ddnc =[]; dcol =[];
+while(flag)
+    flag=0;
+    [graph,flag] = R1(graph, flag, verbose);
+    [graph,flag] = R2(graph, flag, verbose);
+    [graph,flag] = R3(graph, flag, verbose);
+    [graph, ddnc, dcols, flag] = R4(graph, sepSet, ddnc, dcol, flag, verbose);
+end    
+% Iteratively apply rules R8-R10 until none of them applies
+flag=1;
+while(flag)
+    flag=0;
+    [graph,flag] = R8(graph, flag, verbose);
+    [graph,flag] = R9_R10(graph, dnc, flag, verbose);
+end 
 
 % Apply orientation rules
 % Apply R0: Orient unshielded colliders
@@ -265,67 +280,67 @@ for curc = 1:nnodes
 end
 end
 
-function [G,flag] = R8(G, flag, verbose)
+function [graph,flag] = R8(graph, flag, verbose)
 
-[r,c] = find(G == 2 & G' == 1);
+[r,c] = find(graph == 2 & graph' == 1);
 nedges = length(r);
 
 for i = 1:nedges
-    out = find(G(:,r(i)) == 3);
-    if(any(G(out,c(i)) == 2 & G(c(i),out)' == 3))
+    out = find(graph(:,r(i)) == 3);
+    if(any(graph(out,c(i)) == 2 & graph(c(i),out)' == 3))
         if(verbose)
             fprintf('\tR8: Orienting %d->%d\n',r(i),c(i));
         end
-        G(c(i),r(i)) = 3;
+        graph(c(i),r(i)) = 3;
         flag = 1;
     end
 end
 end
 
-function [G,flag] = R9_R10(G,dnc,flag,verbose)
+function [graph,flag] = R9_R10(graph,dnc,flag,verbose)
 
-[r,c] = find(G == 2 & G' == 1);
+[r,c] = find(graph == 2 & graph' == 1);
 nedges = length(r);
 
 % R9: Equivalent to orienting X <-o Y as X <-> Y and checking if Y is an
 % ancestor of X (i.e. there is an almost directed cycle)
 for i = 1:nedges
-    % Can it be bidirected? (R9)
-    G_ = G;
+    G_ = graph;
     G_(c(i),r(i)) = 2;
     G_ = orientDnc_mex(G_, c(i), r(i));
     if(isReachablePag_mex(G_,r(i),c(i)))
         if(verbose)
             fprintf('\tR9: Orienting %d*--%d\n',c(i),r(i));
         end
-        G(c(i),r(i)) = 3;
+        graph(c(i),r(i)) = 3;
         flag = 1;
     end
 end
 
 % Fast, trivial check if there is a potentially directed path
-possibleClosure = transitiveClosureSparse_mex(sparse((G == 1 & G' ~= 2) | (G == 2 & G' == 3)));
+possibleClosure = transitiveClosureSparse_mex(sparse((graph == 1 & graph' ~= 2) | (graph == 2 & graph' == 3)));
 
 % R10: Equivalent to checking if for some definite non collider V - X - W
 % and edge X o-> Y, X->V and X->W both create a directed path to Y after
 % oriented
-closures = zeros(length(G),length(G));
-tested = false(1,length(G));
-for s = 1:length(G)
+closures = zeros(length(graph),length(graph));
+tested = false(1,length(graph));
+for s = 1:length(graph)
     tested(:) = false;
-    curdnc = dnc{s};
-    ndnc = size(curdnc,1);
+    curDnc = dnc(ismember(dnc(:, 2), s),:);
+    %curDnc = dnc{s};
+    ndnc = size(curDnc,1);
     
-    for t = find(G(:,s)' == 1 & G(s,:) == 2)
+    for t = find(graph(:,s)' == 1 & graph(s,:) == 2)
         for j = 1:ndnc
-            a = curdnc(j,1);
-            b = curdnc(j,2);
-            if(~possibleClosure(a,t) || ~possibleClosure(b,t) || G(a,s) == 2 || G(b,s) == 2 || a == t || b == t)
+            a = curDnc(j,1);
+            b = curDnc(j,2);
+            if(~possibleClosure(a,t) || ~possibleClosure(b,t) || graph(a,s) == 2 || graph(b,s) == 2 || a == t || b == t)
                 continue;
             end
             
             if(~tested(a))
-                G_ = G;
+                G_ = graph;
                 G_(s,a) = 2;
                 G_(a,s) = 3;
                 G_ = orientDnc_mex(G_,s,a);
@@ -337,7 +352,7 @@ for s = 1:length(G)
             end
             
             if(~tested(b))
-                G_ = G;
+                G_ = graph;
                 G_(s,b) = 2;
                 G_(b,s) = 3;
                 G_ = orientDnc_mex(G_,s,b);
@@ -351,7 +366,7 @@ for s = 1:length(G)
             if(verbose)
                 fprintf('\tR10: Orienting %d*--%d\n',t,s);
             end
-            G(t,s) = 3;
+            graph(t,s) = 3;
             flag = 1;
             break;
         end
