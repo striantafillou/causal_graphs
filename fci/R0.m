@@ -1,5 +1,8 @@
 function [pag, dnc, col] = R0(pag, sepSets, verbose)
-% If a*->c<-*b, a b not adjacent, c not in sepSet(a,b)
+% function [pag, dnc, col] = R0(pag, sepSets, verbose)
+% FCI rule  RO: Orient unshielded colliders
+% If a*-*c*-*b, a b not adjacent, c not in sepSet(a,b) orient a*->c<-*b
+% else mark as definite non collider.
 
 nVars = length(pag);
 unshieldedtriples = cell(nVars,1);
@@ -32,7 +35,7 @@ for c = 1:nVars
     
     for t = 1:ntriples
         a = curtriples(t,1);
-        b = curtriples(t,2);             
+        b = curtriples(t,2);  
         if sepSets(a,b,c) % If in sepset ==> dnc
             iDnc = iDnc+1; 
             dnc(iDnc, :) = [a c b];

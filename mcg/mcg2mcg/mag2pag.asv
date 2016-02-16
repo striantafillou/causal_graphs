@@ -12,18 +12,17 @@ function pag =  mag2pag(mag)
 % pag                     = PAG matrix(see folder README for details)
 % =======================================================================
 
-graph = mag;
+pag = mag;
 
-graph(~~graph)=1;
+pag(~~pag)=1;
+verbose =false;
 %pag =  additionalmanipulationrule(pag, manipulatedVars, screen);
-[graph, dnc] =  FCI_rules_mag(graph, mag, false);
-pag.graph = graph;
-pag.dnc = dnc;
+[pag, dnc] =  FCI_rules_mag(pag, mag, verbose);
 end
 
 function [G, dnc, flagcount] = FCI_rules_mag(G, mag, screen)
 flagcount =0;
- unshieldedtriples = getUnshieldedTriples(G);
+unshieldedtriples = getUnshieldedTriples(G);
 [G, dnc] = R0(G, unshieldedtriples, mag, screen);
 
 flag=1;

@@ -1,4 +1,4 @@
-function [pag, sepSet,pvalues, maxSepSet, pdsep] = fciskeleton(dataset, test, heuristic, alpha, maxK,  pdSep, verbose)
+function [pag, sepSet,pvalues, maxSepSet, pdsep] = fciskeleton(dataset, test, heuristic, alpha, maxK,  pdSep, verbose, debug)
 % [pag, sepSet,pvalues, maxSepSet, pdsep] = fciskeleton(dataset, test, alpha, maxK,  pdSep, verbose)
 %Runs FCI skeleton with maxK  and alpha 
 nVars =  size(dataset.data, 2);
@@ -97,17 +97,23 @@ while n<maxCondSetSize
             end
         end
         condsets = [condsetsX; condsetsY];
+        [condsets, uniqueOrd]= unique(condsets, 'rows');
+
         % if heuristic 3, sort conditioning set in deacreasing order of
         % association, which means: lower p-values first, larger statistics
         % first.
         if heuristic==3
-            strengthCondsets= [strengthX; strengthY];
+            strengthCondsets = [strengthX; strengthY];
             [strengthCondsets, csOrd] = sortrows(strengthCondsets);
             condsets = condsets(csOrd, :);
+        else
+            [condsets, uniqueOrd]= unique(condsets, 'rows');
+
         end
-        [condsets, uniqueOrd]= unique(condsets, 'rows');
         for iCS = 1:size(condsets, 1)
             condset = condsets(iCS, :);
+            % if you have already checked, continue
+            if any(ismember(strengthCondsets
             if verbose
                  fprintf('\t \t with set %s, strength %.3f\n', num2str(condset), strengthCondsets(uniqueOrd(iCS), 1));
             end
@@ -121,12 +127,12 @@ while n<maxCondSetSize
                 pvalues(X, Y) = p;
                 pvalues(Y, X) = p;
                 if verbose 
-                    fprintf('\t\t\t Independence accepted, p-value %s\n', num2str(p))
+                    fprintf('\t\t\t Accepted, p-value %s\n', num2str(p))
                 end
                 break;
             else
-                if verbose
-                    fprintf('\t\t Independence NOT accepted, p-value %s\n', num2str(p))
+                if debug
+                    fprintf('\t\t\t Independence NOT accepted, p-value %s\n', num2str(p))
                 end
                 % TODO here maybe it is better to compare stats in case of
                 % ties.
@@ -142,7 +148,6 @@ end % end while n<maxK
     % Implement possibly d-separating set
 if pdSep==1
     [pag, ~,  ~] = R0(pag, sepSet, verbose);
-    printedgesmcg(pag);
     % you need to look edges both ways.
     [Ys, Xs] = find(pag);
     for iEdge=1:length(Xs)
@@ -151,9 +156,13 @@ if pdSep==1
         if flagPag(X, Y) == 1
             continue;
         end
-        fprintf('\t Checking %d-%d, p-value %.3f\n', X, Y, pvalues(X, Y));
-        pdSepSet =  findpdsepset(pag, X, Y, verbose);
-        fprintf('\t Pdseparating set %s\n', num2str(pdSepSet));
+        if verbose
+            fprintf('\t Checking %d-%d, p-value %.3f\n', X, Y, pvalues(X, Y));
+        end
+        pdSepSet =  findpdsepset(pag, X, Y, false);
+        if debug
+            fprintf('\t Pdseparating set %s\n', num2str(pdSepSet));
+        end
         if isempty(pdSepSet)
             continue;
         end
@@ -166,7 +175,9 @@ if pdSep==1
                 if all(pag(X, condset))  
                     continue;
                 else
+                    if verbose
                     fprintf('\t with conditioning set %s\n', num2str(condset));
+                    end
                     [p, ~, exitflag] = feval(test,X, Y, condset, dataset);
                     if p>alpha 
                         pag(X, Y) = 0; pag(Y, X) = 0;
@@ -180,9 +191,9 @@ if pdSep==1
                             fprintf('\t\t Independence accepted, p-value %s\n', num2str(p))
                         end
                     else
-                        if verbose
-                        fprintf('\t\t Independence NOT accepted, p-value %s\n', num2str(p))
-                        end
+%                         if verbose
+%                         fprintf('\t\t Independence NOT accepted, p-value %s\n', num2str(p))
+%                         end
                         [pvalues(X, Y), ind] = max([pvalues(X, Y), pvalues(Y, X), p]); pvalues(Y, X) = pvalues(Y, X);
                         if ind ==3
                             maxSepSet(X, Y, :) = 0; maxSepSet(Y, X, :) = 0; maxSepSet(X, Y, condset) =1; maxSepSet(Y, X, condset)=1;

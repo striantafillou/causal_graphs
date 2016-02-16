@@ -22,9 +22,7 @@ function [p, foo, exitflag] = msep(x, y, condset, dataset)
 % exitflag                = dummy variable denoting if computations
 %                           completed correctly (1 f true, 0 otherwise)
 % =======================================================================
-graph  = dataset.data;
-isAncestor = dataset.isAncestor;
-if ismember(y, findmseparations(graph, x, condset, isAncestor, dataset.isLatent));
+if ismember(y, findmseparations(dataset.data, x, condset, dataset.isAncestor, dataset.isLatent));
     p =1;
 else p =0;
 end
@@ -97,15 +95,14 @@ while(found)
             U=edgesLabeledi_rows(j);
             V=edgesLabeledi_cols(j);
             W=unlabeledEdge;
-           % fprintf('Proceeding through %s\n', num2str([U V W]));            
+           %  fprintf('Proceeding through %s\n', num2str([U V W]));            
             if(edgesLabeledi_rows(j)~=unlabeledEdge)
                 %U_V=graph(U,V)
                 %W_V=graph(W,V)
                 %isDesc=descendents(V)
                 %inCon=inConditionSet(V)
-                collider=iscollider(mcg,U, V, W);
-                if(((~collider && inConditionSet(V)==0)||(collider && descendants(V)==1)))
-                %    fprintf('%d is a non collider and in CS or a collider and a descendant of CS\n', V);
+                if(((isnoncollider(mcg,U, V, W) && inConditionSet(V)==0)||(iscollider(mcg,U, V, W) && descendants(V)==1)))
+                  % fprintf('%d is a non collider and in CS or a collider and a descendant of CS\n', V);
                     reachable=[reachable W];
                     edges(V,W)=i+1;
                     found=1;
@@ -125,9 +122,18 @@ end
 
 
 function isCol=iscollider(graph, U, V, W)
-    if ((graph(U,V)==2||graph(U,V)==4) && (graph(W, V)==2||graph(W, V)==4))
+    if((graph(U,V)==2||graph(U,V)==4) && (graph(W, V)==2||graph(W, V)==4))
         isCol=1;
     else
         isCol=0;
+    end
+end
+
+
+function isnCol=isnoncollider(graph, U, V, W)
+    if ~(graph(U,V)==2 && graph(W, V)==2) 
+        isnCol=1;
+    else
+        isnCol=0;
     end
 end

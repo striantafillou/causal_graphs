@@ -1,5 +1,5 @@
 function hasIndPath = hasinducingpathdag(X, Y, dag, isAncestor, isLatent, verbose)
-% function bool = hasinducingpathdag(X, Y, mcg, isAncestor, isLatent, verbose)
+% function bool = hasInducingPathDag(X, Y, mcg, isAncestor, isLatent, verbose)
 % returns true if variables X and Y are connected in graph dag by an
 % inducing path with respect to variables find(isLatent).
 % Author: striant@csd.uoc.gr

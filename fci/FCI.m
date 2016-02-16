@@ -51,16 +51,21 @@ function pag = FCI(dataset, varargin)
 %           'cons'       true (default) for conservative rules for
 %                        colliders(REF??)
 %           'pdSep'      false (default) for skipping the possible
-%                        d-separating step of FCI (??REF??)
+%                        d-separating step of FCI (see SGS, p.187)
 %           'verbose'    true for screen output, false(default) otherwise.
+%           'debug'      true for detailed screen output, false(default)
+%                        otherwise.
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if isequal(dataset.type , 'disc') % discrete variables 
-  [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] = process_options(varargin, 'test', 'g2test_2', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', true, 'verbose', false);
+  [test,  heuristic, alpha,  maxK, pdSep, cons, verbose, debug] = ...
+      process_options(varargin, 'test', 'g2test_2', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false, 'debug', false);
 elseif isequal(dataset.type , 'cont')
-   [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] = process_options(varargin, 'test', 'fisher', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', true, 'verbose', false);
+   [test,  heuristic, alpha,  maxK, pdSep, cons, verbose, debug] =...
+       process_options(varargin, 'test', 'fisher', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false, 'debug', false);
 elseif isequal(dataset.type , 'oracle')
-    [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] = process_options(varargin, 'test', 'msep', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', true);
+    [test,  heuristic, alpha,  maxK, pdSep, cons, verbose, debug] =...
+        process_options(varargin, 'test', 'msep', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', true, 'debug', false);
 else
     errprintf('Unknown dataset type\n')
 end
@@ -70,7 +75,7 @@ end
 if verbose
     fprintf('-------------------------------------------------------------------------------\n')
     fprintf('Running FCI, params:\n')
-    fprintf('\t test: %s \n\t heuristic: %d \n\t alpha: %.3f\n\t maxK: %d\n\t pdSep: %d \n\t cons: %d\n\t verbose %d\n', test, alpha, heuristic,  maxK, pdSep, cons, verbose)
+    fprintf('\t test: %s \n\t heuristic: %d \n\t alpha: %.3f\n\t maxK: %d\n\t pdSep: %d \n\t cons: %d\n\t verbose %d\n', test, heuristic, alpha,  maxK, pdSep, cons, verbose)
 
     fprintf('Step1. Identifying skeleton\n');
 end
@@ -305,10 +310,10 @@ nedges = length(r);
 % R9: Equivalent to orienting X <-o Y as X <-> Y and checking if Y is an
 % ancestor of X (i.e. there is an almost directed cycle)
 for i = 1:nedges
-    G_ = graph;
-    G_(c(i),r(i)) = 2;
-    G_ = orientDnc_mex(G_, c(i), r(i));
-    if(isReachablePag_mex(G_,r(i),c(i)))
+    tmpgraph = graph;
+    tmpgraph(c(i),r(i)) = 2;
+    tmpgraph = orientDnc_mex(tmpgraph, c(i), r(i));
+    if(isReachablePag_mex(tmpgraph,r(i),c(i)))
         if(verbose)
             fprintf('\tR9: Orienting %d*--%d\n',c(i),r(i));
         end
@@ -334,17 +339,17 @@ for s = 1:length(graph)
     for t = find(graph(:,s)' == 1 & graph(s,:) == 2)
         for j = 1:ndnc
             a = curDnc(j,1);
-            b = curDnc(j,2);
+            b = curDnc(j,3);
             if(~possibleClosure(a,t) || ~possibleClosure(b,t) || graph(a,s) == 2 || graph(b,s) == 2 || a == t || b == t)
                 continue;
             end
             
             if(~tested(a))
-                G_ = graph;
-                G_(s,a) = 2;
-                G_(a,s) = 3;
-                G_ = orientDnc_mex(G_,s,a);
-                closures(a,:) = findAncestorsPag_mex(G_',s);
+                tmpgraph = graph;
+                tmpgraph(s,a) = 2;
+                tmpgraph(a,s) = 3;
+                tmpgraph = orientDnc_mex(tmpgraph,s,a);
+                closures(a,:) = findAncestorsPag_mex(tmpgraph',s);
                 tested(a) = true;
             end
             if(~closures(a,t))
@@ -352,11 +357,11 @@ for s = 1:length(graph)
             end
             
             if(~tested(b))
-                G_ = graph;
-                G_(s,b) = 2;
-                G_(b,s) = 3;
-                G_ = orientDnc_mex(G_,s,b);
-                closures(b,:) = findAncestorsPag_mex(G_',s);
+                tmpgraph = graph;
+                tmpgraph(s,b) = 2;
+                tmpgraph(b,s) = 3;
+                tmpgraph = orientDnc_mex(tmpgraph,s,b);
+                closures(b,:) = findAncestorsPag_mex(tmpgraph',s);
                 tested(b) = true;
             end
             if(~closures(b,t))

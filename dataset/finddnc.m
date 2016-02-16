@@ -1,4 +1,6 @@
 function dnc = finddnc(dag)
+% function dnc = finddnc(dag)
+% Returns nDnc x 3 matrix where each row is a definite non collider.
 dnc = [];
 nVars = length(dag);
 

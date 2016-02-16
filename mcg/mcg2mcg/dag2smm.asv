@@ -43,16 +43,15 @@ for X = 1:nVars
         if isLatent(Y)
             continue;
         end
-        if any(dag(X, isLatent) &  throughLatent(isLatent, Y)')
-        %if descendants(X, Y)           
+        if any(dag(X, isLatent) && 
+        if descendants(X, Y)           
             arrows(X, Y) = 1;
             tails(Y, X) = 1;
-        elseif any(dag(Y, isLatent) &  throughLatent(isLatent, X)')%descendants(Y, X);
+        elseif descendants(Y, X);
             tails(X, Y) = 1;
             arrows(Y, X) = 1;
         end
-
-        if any(sum(throughLatent(isLatent, [X, Y]), 2)==2)
+        if any(sum(descendants(isLatent, [X, Y]), 2)==2)
             arrows(Y, X) = 1;
             arrows(X, Y) = 1;
         end

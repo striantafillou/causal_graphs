@@ -1,13 +1,15 @@
-function [pag, dnc, col] = R0(pag, sepSets, verbose)
-% If a*->c<-*b, a b not adjacent, c not in sepSet(a,b)
+function [pag, dnc, col] = R0(pag, sepSets, cons, verbose)
+% function [pag, dnc, col] = R0(pag, sepSets, cons, verbose)
+% FCI rule  RO: Orient unshielded colliders
+% If a*-*c*-*b, a b not adjacent, c not in sepSet(a,b) orient a*->c<-*b
+% else mark as definite non collider.
+% cons =1: Conservative version: 
 
-unshieldedtriples = findallunshieldedtriples(pag);
+nVars = length(pag);
+unshieldedtriples = cell(nVars,1);
+unshieldedpairs = zeros(nVars*nVars,2);
 
-nNodes = length(pag);
-unshieldedtriples = cell(nNodes,1);
-unshieldedpairs = zeros(nNodes*nNodes,2);
-
-for i = 1:nNodes
+for i = 1:nVars
     neighbours = find(pag(i,:));
     nneighbours = length(neighbours);
     curindex = 1;
@@ -25,7 +27,7 @@ for i = 1:nNodes
     unshieldedtriples{i} = unshieldedpairs(1:curindex-1,:);
 end
 
-nVars = length(unshieldedtriples);
+
 [dnc, col] = deal(nan(nchoosek(nVars, 3), 3));
 iCol =0; iDnc =0;
 for c = 1:nVars
@@ -34,13 +36,15 @@ for c = 1:nVars
     
     for t = 1:ntriples
         a = curtriples(t,1);
-        b = curtriples(t,2);             
+        b = curtriples(t,2);  
+        if cons
+        end
         if sepSets(a,b,c) % If in sepset ==> dnc
             iDnc = iDnc+1; 
             dnc(iDnc, :) = [a c b];
         else % If not in sepset ==> ~dnc and orient
             if verbose
-                fprintf('R0: Orienting %d*->%d<-*%d\n',a,c,b);
+                fprintf('\tR0: Orienting %d*->%d<-*%d\n',a,c,b);
             end
             iCol = iCol+1; 
             col(iCol, :) = [a c b];

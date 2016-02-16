@@ -1,34 +1,39 @@
-nVars =10;
-inds= find(triu(ones(nVars),1));
-allProbInds = [];isNadj = [];
-for i =1:200
-    maxParents = 3;
+% test to see if FCI with oracle works correctly
+% Create 200 graphs with 40 variables and max. 5 latent, run FCI, compare
+% to gold standard.
+
+fprintf('----------Test 1: FCI oracle--------------\n');
+nIters=200;
+times = nan(nIters, 1);
+nVars = 10;
+maxParents = 3;
+maxLatent=4;
+
+for i =1:nIters
+    fprintf('Iter %d\n', i);
+
     dag = randomdag(nVars, maxParents);
-    adj = dag+dag';
-    type = 'gaussian';
-    verbose = true;
-
-    [nodes, domainCounts] = dag2randBN(dag, type);
-    nSamples = 100;
-
-    ds  = simulatedata(nodes, nSamples, domainCounts, type);
-    gds = simulateoracledata(dag);
+    nLatent = randi(maxLatent);
+    isLatent = false(nVars, 1);
+    isLatent(randsample(1:nVars, nLatent)) = true;
+    gds = simulateoracledata(dag, 'isLatent', isLatent);
     gds.isAncestor = transitiveClosureSparse_mex(sparse(dag));
+    t=tic;
     p = FCI(gds, 'test', 'msep',  'verbose', false);
-    d = dag+dag';
-    [x, y] = find(d-~~p.graph);
-    if ~isempty(x)
-        disp(x);
+    times(i) =toc;
+
+    gt = mag2pag(dag2mag(dag, isLatent));
+    if any(any(p.graph-gt.graph))
+    fprintf('Error in FCI oracle\n')
         break;
     end
-    
-%     [probInd, ahat, pi0hat] = PROPeR(~~p.graph, p.pvalues);
-%    % [fh, ah] = plotPvalueFit(p.pvalues, graph+graph', ahat);
-%     allProbInds = [allProbInds; probInd(inds)];
-%     isNadj =  [isNadj; ~adj(inds)];
-% 
 end
-%%
+ 
+
+%% Create the example from Causation, Prediction and Search p. 187 to check pdSepStage.
+
+
+fprintf('----------Test 2: Find possible d-separating set--------------\n');
 dag = zeros(9);
 dag(9, 1) = 1; dag(9, 2) = 1;
 dag(3, 2) = 1; dag(4, 3) = 1;
@@ -40,7 +45,44 @@ isLatent = false(1, nVars); isLatent([8, 9]) = true;
 gds = simulateoracledata(dag, 'isLatent', isLatent);
 
 gds.isAncestor = transitiveClosureSparse_mex(sparse(dag));
-    p = FCI(gds, 'test', 'msep', 'pdsep', true, 'verbose', false);
+p = FCI(gds, 'test', 'msep', 'pdsep', true, 'verbose', false);
+
+    
+%% Test to check the results of the FCI heuristic.
+
+fprintf('----------Test 1: FCI oracle--------------\n');
+nIters=200;
+times = nan(nIters, 3);
+nVars =20;
+maxParents = 3;
+
+for i =1%:200
+    dag = randomdag(nVars, maxParents);
+    type = 'gaussian';
+    nLatent = randi(maxLatent);
+    isLatent = false(nVars, 1);
+    isLatent(randsample(1:nVars, nLatent)) = true;
+
+    [nodes, domainCounts] = dag2randBN(dag, type);
+    nSamples = 500;
+
+    ds  = simulatedata(nodes, nSamples, domainCounts, type, 'isLatent', isLatent);
+
+    p3 = FCI(ds, 'test', 'fisher', 'heuristic', 3, 'verbose', false, 'pdsep', false);   
+times(i, 
+    p2 =FCI(ds, 'test', 'fisher', 'heuristic', 2, 'false', true, 'pdsep', false);
+    p1 =FCI(ds, 'test', 'fisher', 'heuristic', 1, 'verbose', true, 'pdsep', false);
+    gt = mag2pag(dag2mag(dag, isLatent));
+    
+    gds = simulateoracledata(dag, 'isLatent', isLatent);
+    gds.isAncestor = transitiveClosureSparse_mex(sparse(dag));
+    gds.isAncestor(isLatent, :) =0; gds.isAncestor(:, isLatent)=0;
+    pgt = FCI(gds, 'test', 'msep',  'verbose', false);
+    
+    [sPrec3, sRec3, oPrec3, oRec3] = fciprescisionrecall(p3, gt);
+    [sPrec1, sRec1, oPrec1, oRec1] = fciprescisionrecall(p1, gt);
+    
+end
 
 %%
 [n, bin] = histc(allProbInds, 0:0.1:1);
