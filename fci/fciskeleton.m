@@ -165,7 +165,7 @@ if pdSep==1
             fprintf('\t Checking %d-%d, p-value %.3f\n', X, Y, pvalues(X, Y));
         end
         pdSepSet =  findpdsepset(pag, X, Y, false);
-        if debug
+        if verbose
             fprintf('\t Pdseparating set %s\n', num2str(pdSepSet));
         end
         if isempty(pdSepSet)

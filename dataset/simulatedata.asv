@@ -29,7 +29,7 @@ function dataset=simulatedata(nodes, numCases, domainCounts, type, varargin)
 %                           variables
 %    .isManipulated       = nVars x 1 boolean vector, true for manipulated
 %                           variables  
-%   .type                 = type of data set (discrete, gaussian)
+%   .type                 = type of data set (discrete, d
 % =======================================================================
 numNodes=length(nodes);
 [isLatent, isManipulated, verbose] = process_options(varargin, 'isLatent',  false(1, numNodes),'isManipulated', false(1, numNodes),  'verbose', false);

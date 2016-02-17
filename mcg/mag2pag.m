@@ -15,14 +15,12 @@ function pag =  mag2pag(mag)
 pag = mag;
 
 pag(~~pag)=1;
-verbose =false;
-%pag =  additionalmanipulationrule(pag, manipulatedVars, screen);
-[pag, dnc] =  FCI_rules_mag(pag, mag, verbose);
+pag =  FCI_rules_mag(pag, mag, false);
 end
 
 function [G, dnc, flagcount] = FCI_rules_mag(G, mag, screen)
 flagcount =0;
-unshieldedtriples = getUnshieldedTriples(G);
+ unshieldedtriples = getUnshieldedTriples(G);
 [G, dnc] = R0(G, unshieldedtriples, mag, screen);
 
 flag=1;

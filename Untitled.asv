@@ -1,0 +1,226 @@
+plotsDir = [mainDir filesep '_plots' filesep '_results' filesep 'cond_ind_figure']; if ~isdir(plotsDir); mkdir(plotsDir); end
+for which =18%1:length(totalPairs)
+
+isIncluded  = ~(bm.isBCMarker|~cellfun('isempty', strfind(bm.headers, 'Time'))| ~cellfun('isempty', strfind(bm.headers, 'DNA-2')));
+curHeaders = bm.headers(isIncluded);
+totalPairs(which, :)
+bppvals = indPValue(which, :);
+[p, whichInh]= min(bppvals);
+load([matDir filesep 'BM' filesep bm.inhibitors{whichInh} '.mat']);
+curDataInds= ismember(plateData(36:38), [iPop iAct 8], 'rows');
+curDataActInds= ismember(plateData(:, 36:38), [totalPairs(which, 1:2) 8], 'rows');
+curDataRefInds= ismember(plateData(:, 36:38), [totalPairs(which, 1) 12 8], 'rows');
+refData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1)];
+stimData = [plateData(curDataActInds, :) ones(sum(curDataActInds), 1)];
+meanRefData = mean(refData); meanStimData = mean(stimData);
+curData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1); stimData];
+
+
+pop = totalPairs(which, 1); act = totalPairs(which,2); from = totalPairs(which, 3); to = totalPairs(which, 4);
+close all;
+
+fromData = curData(:, from); toData = curData(:, to); actData = curData(:, end);
+a = 0.1; b=-0.1;
+r = a+(b-a)*rand(length(curData), 1);
+
+
+figure;
+subplot(1, 2, 1);
+scatter(actData+r, fromData, '.');
+hold all;
+plot([-0.2 0.2], [meanRefData(from) meanRefData(from)]);
+plot([0.8 1.2], [meanStimData(from) meanStimData(from)]);
+ylabel(curHeaders{from});
+xlabel(bm.activators{act});
+
+subplot(1, 2, 2);
+scatter(actData+r, toData, '.');
+hold all;
+plot([-0.2 0.2], [meanRefData(to) meanRefData(to)]);
+plot([0.8 1.2], [meanStimData(to) meanStimData(to)]);
+
+ylabel(curHeaders{to});
+xlabel(bm.activators{act});
+
+
+export_fig([plotsDir filesep num2str(which) '_' bm.populations{pop}  '_' bm.activators{act} '_' curHeaders{from} '_' curHeaders{to} '.png']);
+
+end
+
+%%
+
+plotsDir = [mainDir filesep '_plots' filesep '_results' filesep 'cond_ind_figure']; if ~isdir(plotsDir); mkdir(plotsDir); end
+colors = {'r', 'g', 'b', 'c', 'm', 'y'};
+for which =1:length(totalPairs)
+    
+    isIncluded  = ~(bm.isBCMarker|~cellfun('isempty', strfind(bm.headers, 'Time'))| ~cellfun('isempty', strfind(bm.headers, 'DNA-2')));
+    curHeaders = bm.headers(isIncluded);
+    totalPairs(which, :)
+    bppvals = indPValue(which, :);
+    [p, whichInh]= min(bppvals);
+    load([matDir filesep 'BM' filesep bm.inhibitors{whichInh} '.mat']);
+    curDataInds= ismember(plateData(36:38), [iPop iAct 8], 'rows');
+    curDataActInds= ismember(plateData(:, 36:38), [totalPairs(which, 1:2) 8], 'rows');
+    curDataRefInds= ismember(plateData(:, 36:38), [totalPairs(which, 1) 12 8], 'rows');
+    refData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1)];
+    stimData = [plateData(curDataActInds, :) ones(sum(curDataActInds), 1)];
+    meanRefData = mean(refData); meanStimData = mean(stimData);
+    curData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1); stimData];
+
+   
+    pop = totalPairs(which, 1); act = totalPairs(which,2); from = totalPairs(which, 3); to = totalPairs(which, 4);
+    close all;
+
+    fromData = curData(:, from); toData = curData(:, to); actData = curData(:, end);
+    a = 0.1; b=-0.1;
+    r = a+(b-a)*rand(length(curData), 1);
+
+
+    figure;hold all;
+     
+    nBins = 3;
+    if size(curData, 1)>1000
+        nBins =5;
+    end
+    whichBin = ceil(nBins * tiedrank(fromData) / size(fromData,1));
+
+    for iBin =1:nBins
+        scatter(actData(whichBin==iBin)+r(whichBin==iBin), toData(whichBin==iBin), colors{iBin}, '.');
+        toRefData = toData(whichBin==iBin & actData ==0);
+        toStimData = toData(whichBin==iBin & actData ==1);
+        plot([-0.2 0.2], [mean(toRefData) mean(toRefData)], colors{iBin});
+        plot([0.8 1.2], [mean(toStimData) mean(toStimData)], colors{iBin});
+    end
+    
+    plot([-0.3 0.3], [meanRefData(to) meanRefData(to)], 'k');
+    plot([0.7 1.3], [meanStimData(to) meanStimData(to)], 'k')
+    % nBins = 3;
+    % binEdges = linspace(min(fromData), max(fromData)+1, nBins+1);  
+    % [h,whichBin] = histc(fromData, binEdges)
+
+
+
+
+    export_fig([plotsDir filesep num2str(which) '_' bm.populations{pop}  '_' bm.activators{act} '_' curHeaders{from} '_' curHeaders{to} '.png']);
+
+end
+
+%%
+plotsDir = [mainDir filesep '_plots' filesep '_results' filesep 'cond_ind_figure']; if ~isdir(plotsDir); mkdir(plotsDir); end
+for which =18%1:length(totalPairs)
+
+isIncluded  = ~(bm.isBCMarker|~cellfun('isempty', strfind(bm.headers, 'Time'))| ~cellfun('isempty', strfind(bm.headers, 'DNA-2')));
+curHeaders = bm.headers(isIncluded);
+totalPairs(which, :)
+bppvals = indPValue(which, :);
+[p, whichInh]= min(bppvals);
+load([matDir filesep 'BM' filesep bm.inhibitors{whichInh} '.mat']);
+curDataInds= ismember(plateData(36:38), [iPop iAct 8], 'rows');
+curDataActInds= ismember(plateData(:, 36:38), [totalPairs(which, 1:2) 8], 'rows');
+curDataRefInds= ismember(plateData(:, 36:38), [totalPairs(which, 1) 12 8], 'rows');
+refData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1)];
+stimData = [plateData(curDataActInds, :) ones(sum(curDataActInds), 1)];
+meanRefData = mean(refData); meanStimData = mean(stimData);
+curData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1); stimData];
+
+
+pop = totalPairs(which, 1); act = totalPairs(which,2); from = totalPairs(which, 3); to = totalPairs(which, 4);
+close all;
+
+fromData = curData(:, from); toData = curData(:, to); actData = curData(:, end);
+a = 0.1; b=-0.1;
+r = a+(b-a)*rand(length(curData), 1);
+
+
+figure;
+subplot(1, 2, 1);
+scatter(actData+r, fromData, '.');
+hold all;
+plot([-0.2 0.2], [meanRefData(from) meanRefData(from)]);
+plot([0.8 1.2], [meanStimData(from) meanStimData(from)]);
+ylabel(curHeaders{from});
+xlabel(bm.activators{act});
+
+subplot(1, 2, 2);
+scatter(actData+r, toData, '.');
+hold all;
+plot([-0.2 0.2], [meanRefData(to) meanRefData(to)]);
+plot([0.8 1.2], [meanStimData(to) meanStimData(to)]);
+
+ylabel(curHeaders{to});
+xlabel(bm.activators{act});
+
+
+export_fig([plotsDir filesep num2str(which) '_' bm.populations{pop}  '_' bm.activators{act} '_' curHeaders{from} '_' curHeaders{to} '.png']);
+
+end
+
+%%
+
+plotsDir = [mainDir filesep '_plots' filesep '_results' filesep 'cond_ind_figure']; if ~isdir(plotsDir); mkdir(plotsDir); end
+colors = {'r', 'g', 'b', 'c', 'm', 'y'};
+isIncluded  = ~(bm.isBCMarker|~cellfun('isempty', strfind(bm.headers, 'Time'))| ~cellfun('isempty', strfind(bm.headers, 'DNA-2')));
+curHeaders = bm.headers(isIncluded);
+for iInh =1:length(bm.inhibitors)
+    whichInh = bm.inhibitors{iInh};
+    load([matDir filesep 'BM' filesep whichInh '.mat']);
+    
+    for which =56%1:length(totalPairs)
+        pop = totalPairs(which, 1); act = totalPairs(which,2); from = totalPairs(which, 3); to = totalPairs(which, 4);
+
+        
+        pairInd= find(ismember(pairs, [from to], 'rows'));
+        if ~isTriplet(pairInd,1, iInh, act, pop)
+            continue;
+        end
+%         bppvals = indPValue(which, :);
+%         [p, whichInh]= min(bppvals);
+       
+        curDataInds= ismember(plateData(36:38), [iPop iAct 8], 'rows');
+        curDataActInds= ismember(plateData(:, 36:38), [totalPairs(which, 1:2) 8], 'rows');
+        curDataRefInds= ismember(plateData(:, 36:38), [totalPairs(which, 1) 12 8], 'rows');
+        refData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1)];
+        stimData = [plateData(curDataActInds, :) ones(sum(curDataActInds), 1)];
+        meanRefData = mean(refData); meanStimData = mean(stimData);
+        curData = [plateData(curDataRefInds, :) zeros(sum(curDataRefInds), 1); stimData];
+
+
+        close all;
+
+        fromData = curData(:, from); toData = curData(:, to); actData = curData(:, end);
+        a = 0.1; b=-0.1;
+        r = a+(b-a)*rand(length(curData), 1);
+
+
+        figure;hold all;
+
+        nBins = 3;
+        if size(curData, 1)>1000
+            nBins =2;
+        end
+        whichBin = ceil(nBins * tiedrank(fromData) / size(fromData,1));
+
+        for iBin =1:nBins
+            scatter(actData(whichBin==iBin)+r(whichBin==iBin), toData(whichBin==iBin), colors{iBin}, '.');
+            toRefData = toData(whichBin==iBin & actData ==0);
+            toStimData = toData(whichBin==iBin & actData ==1);
+            plot([-0.2 0.2], [mean(toRefData) mean(toRefData)], colors{iBin});
+            plot([0.8 1.2], [mean(toStimData) mean(toStimData)], colors{iBin});
+        end
+
+        plot([-0.3 0.3], [meanRefData(to) meanRefData(to)], 'k');
+        plot([0.7 1.3], [meanStimData(to) meanStimData(to)], 'k')
+        % nBins = 3;
+        % binEdges = linspace(min(fromData), max(fromData)+1, nBins+1);       % [h,whichBin] = histc(fromData, binEdges)
+
+        export_fig([plotsDir filesep num2str(which) '_' bm.populations{pop}  '_' bm.activators{act} '_' curHeaders{from} '_' curHeaders{to} '_' whichInh '.png']);
+
+    end
+end
+
+
+
+
+
+
+

@@ -51,7 +51,6 @@ for c = 1:nVars
     end
     dnc = dnc(1:iDnc, :);
     col = col(1:iCol, :);
-    %dnc{c} = curtriples(dnc_index,:);
 end
 
 end

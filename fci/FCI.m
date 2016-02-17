@@ -29,6 +29,7 @@ function pag = FCI(dataset, varargin)
 %   .dcolliders          = list  of discriminating  colliders.
 %   .dnc                 = list of unshielded definite non colliders.
 %   .colliders           = list of unshielded colliders
+%   .nTests              = number of tests attempted by the algorithm.
 %
 %   [...] = FCI(...,'PARAM1',VAL1,'PARAM2',VAL2,...) specifies additional
 %     parameters and their values.  Valid parameters are the following:
@@ -58,14 +59,14 @@ function pag = FCI(dataset, varargin)
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if isequal(dataset.type , 'disc') % discrete variables 
-  [test,  heuristic, alpha,  maxK, pdSep, cons, verbose, debug] = ...
-      process_options(varargin, 'test', 'g2test_2', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false, 'debug', false);
+  [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] = ...
+      process_options(varargin, 'test', 'g2test_2', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false);
 elseif isequal(dataset.type , 'cont')
-   [test,  heuristic, alpha,  maxK, pdSep, cons, verbose, debug] =...
-       process_options(varargin, 'test', 'fisher', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false, 'debug', false);
+   [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] =...
+       process_options(varargin, 'test', 'fisher', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false);
 elseif isequal(dataset.type , 'oracle')
-    [test,  heuristic, alpha,  maxK, pdSep, cons, verbose, debug] =...
-        process_options(varargin, 'test', 'msep', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', true, 'debug', false);
+    [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] =...
+        process_options(varargin, 'test', 'msep', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', true, 'cons', false, 'verbose', true);
 else
     errprintf('Unknown dataset type\n')
 end
@@ -79,7 +80,7 @@ if verbose
 
     fprintf('Step1. Identifying skeleton\n');
 end
-[graph, sepSet,pvalues,maxSepSet] = fciskeleton(dataset, test, heuristic, alpha, maxK,  pdSep, verbose);
+[graph, sepSet, pag.pvalues, pag.maxSepSet, pag.nTests] = fciskeleton(dataset, test, heuristic, alpha, maxK,  pdSep, verbose);
 if verbose
     fprintf('Step2. Orientations\n');
 end
@@ -124,23 +125,7 @@ pag.ddnc = ddnc;
 pag.dcolliders = dcols;
 pag.colliders = cols;
 pag.dnc = dnc;
-pag.pvalues = pvalues;
 pag.sepSet = sepSet;
-pag.maxSepSet = maxSepSet;
-end
-
-function [graph, ddnc, dcol, flagcount] = FCI_rules_magR12R4(graph, sepSet, verbose)
-flagcount =0;
-flag=1;
-ddnc =[]; dcol =[];
-while(flag)
-    flag=0;
-    [graph,flag] = R1(graph, flag, verbose);
-    [graph,flag] = R2(graph, flag, verbose);
-    [graph,flag] = R3(graph, flag, verbose);
-    [graph, ddnc, dcol, flag] = R4(graph, sepSet, ddnc, dcol, flag, verbose);
-    flagcount =  flagcount+flag;
-end
 end
 
 

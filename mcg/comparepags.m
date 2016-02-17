@@ -1,5 +1,5 @@
-function [sPrec, sRec, oPrec, oRec] = fciprescisionrecall(pag, GT)
-% function [sPrec, sRec, oPrec, oRec, pDashedEpts] = fciprescisionrecall(pag, GT)
+function [sPrec, sRec, oPrec, oRec] = comparepags(pag, GT)
+% function [sPrec, sRec, oPrec, oRec, pDashedEpts] = comparepags(pag, GT)
 % returns structural/ orientation precision recall  of pag against ground
 % truth pag:
 
