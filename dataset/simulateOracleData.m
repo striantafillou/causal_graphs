@@ -11,10 +11,11 @@ function gdataset = simulateoracledata(graph, varargin)
 % =======================================================================
 % Outputs
 % =======================================================================
-% dataset                 = struct describing the data, 
-%    .data                   nSamples x nVars matrix containing the data
-%    .domainCounts        = nVars x nVars descendence matrix: 
-%                           domainCounts(i,j) =1 if j is a descendant of i
+% dataset                  = struct describing the data, 
+%    .data                 = the semi-Markov causal model of the dag after
+%                            marginalizing out the variables isLatent
+%    .isAncestor           = nVars x nVars ancestor matrix: 
+%                           isAncestor(i,j) =1 if i is an ancestor of j
 %                           in graph, 0 otherwise
 %    .isLatent            = nVars x 1 boolean vector, true for latent
 %                           variables (default false for all)
