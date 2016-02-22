@@ -63,7 +63,8 @@ if isequal(dataset.type , 'disc') % discrete variables
       process_options(varargin, 'test', 'g2test_2', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false);
 elseif isequal(dataset.type , 'gaussian')
    [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] =...
-       process_options(varargin, 'test', 'fisher', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false);
+       process_options(varargin, 'test', 'msep', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false);
+   test
 elseif isequal(dataset.type , 'oracle')
     [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] =...
         process_options(varargin, 'test', 'msep', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', true, 'cons', false, 'verbose', true);
@@ -316,7 +317,6 @@ possibleClosure = transitiveClosureSparse_mex(sparse((graph == 1 & graph' ~= 2) 
 % oriented
 closures = zeros(length(graph),length(graph));
 tested = false(1,length(graph));
-if isempty(dnc); return;end
 for s = 1:length(graph)
     tested(:) = false;
     curDnc = dnc(ismember(dnc(:, 2), s),:);

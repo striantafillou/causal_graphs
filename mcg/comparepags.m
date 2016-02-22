@@ -1,5 +1,5 @@
 function [sPrec, sRec, oPrec, oRec] = comparepags(pag, GT)
-% function [sPrec, sRec, oPrec, oRec, pDashedEpts] = comparepags(pag, GT)
+% function [sPrec, sRec, oPrec, oRec] = comparepags(pag, GT)
 % returns structural/ orientation precision recall  of pag against ground
 % truth pag:
 
@@ -9,7 +9,7 @@ if ~isstruct(pag)
      return;
 end
 predEdges = ~~pag.graph;
-actualEdges =~~GT.graph;
+actualEdges = ~~GT;
 
 sPrec = (nnz(predEdges & actualEdges))/nnz(predEdges);
 sRec = (nnz(predEdges & actualEdges))/nnz(actualEdges);
@@ -17,8 +17,8 @@ sRec = (nnz(predEdges & actualEdges))/nnz(actualEdges);
 
 predArrows = pag.graph ==2;
 predTails = pag.graph ==3;
-actualArrows = GT.graph ==2;
-actualTails = GT.graph==3;
+actualArrows = GT ==2;
+actualTails = GT==3;
 
 
 oPrec = (nnz((predArrows & actualArrows)| (predTails & actualTails)))/(nnz(pag.graph>1));

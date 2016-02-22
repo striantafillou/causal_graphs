@@ -57,10 +57,11 @@ nIters=200;
 nVars =100;
 maxParents = 3;
 nSamples = 1000;
+maxLatent=4;
 
 [sPrec, sRec, oPrec, oRec, times, nTests] = deal(zeros(nIters, 3));
 
-for i =1:200
+for i =1:nIters
     fprintf('Iter %d\n', i);
     dag = randomdag(nVars, maxParents);
     type = 'gaussian';
@@ -90,10 +91,51 @@ for i =1:200
 
     gt = mag2pag(dag2mag(dag, isLatent));
     
-    [sPrec(i, 1), sRec(i, 1), oPrec(i, 1), oRec(i, 1)] = fciprescisionrecall(p1, gt);
-    [sPrec(i, 2), sRec(i, 2), oPrec(i, 2), oRec(i, 2)] = fciprescisionrecall(p2, gt);
-    [sPrec(i, 3), sRec(i, 3), oPrec(i, 3), oRec(i, 3)] = fciprescisionrecall(p3, gt);
+    [sPrec(i, 1), sRec(i, 1), oPrec(i, 1), oRec(i, 1)] = comparepags(p1, gt);
+    [sPrec(i, 2), sRec(i, 2), oPrec(i, 2), oRec(i, 2)] = comparepags(p2, gt);
+    [sPrec(i, 3), sRec(i, 3), oPrec(i, 3), oRec(i, 3)] = comparepags(p3, gt);
  
+end
+
+
+%% Test to check the results of using conservative FCI
+
+fprintf('----------Test 3: Conservative--------------\n');
+nIters=10;
+nVars =20;
+maxParents = 3;
+nSamples = 1000;
+maxLatent=4;
+
+[sPrec, sRec, oPrec, oRec, times] = deal(zeros(nIters, 2));
+
+for i =1:nIters
+    fprintf('Iter %d\n', i);
+    dag = randomdag(nVars, maxParents);
+    type = 'gaussian';
+    nLatent = randi(maxLatent);
+    isLatent = false(nVars, 1);
+    isLatent(randsample(1:nVars, nLatent)) = true;
+
+    [nodes, domainCounts] = dag2randBN(dag, type);
+
+    ds  = simulatedata(nodes, nSamples, domainCounts, type, 'isLatent', isLatent);
+    
+    t1= tic;
+    p1 =FCI(ds, 'test', 'fisher', 'heuristic', 3, 'verbose', false, 'pdsep', false, 'cons', false);
+    times(i, 1) = toc(t1);
+    
+    t2 =tic;
+    p2 =FCI(ds, 'test', 'fisher', 'heuristic', 3, 'verbose', false, 'pdsep', false, 'cons', true);
+    times(i, 2) = toc(t2);
+    
+
+
+    gt = mag2pag(dag2mag(dag, isLatent));
+    
+    [sPrec(i, 1), sRec(i, 1), oPrec(i, 1), oRec(i, 1)] = comparepags(p1, gt);
+    [sPrec(i, 2), sRec(i, 2), oPrec(i, 2), oRec(i, 2)] = comparepags(p2, gt);
+   
 end
 
 
