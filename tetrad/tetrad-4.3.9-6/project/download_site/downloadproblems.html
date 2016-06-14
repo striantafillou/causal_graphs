@@ -1,0 +1,106 @@
+<html>
+<head>
+<title>Common Download Problems and Solutions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<table width="550" border="0">
+  <tbody> 
+  <tr> 
+    <td height="405"> 
+      <p><img src="images/tetrad_example_image.gif" width="379" height="76"></p>
+      <h1>Tetrad 4.2 Download Site</h1>
+      <h3>Common Download Problems and Solutions</h3>
+      <ol>
+        <li><b>When you click &quot;LAUNCH TETRAD,&quot; you are asked to download 
+          a .jnlp file.</b> 
+          <ul>
+            <li><i>Problem 1: Java Web Start was never installed</i>. If Java 
+              Web Start was never installed, your machine doesn't know what program 
+              to use to open .jnlp files, so it has to ask. The solution is to 
+              install JRE 1.4.0 on your machine, which will install Java Web Start 
+              for you. Use this link: 
+              <blockquote> 
+                <p><a href="http://java.sun.com/j2se/1.4/download.html">http://java.sun.com/j2se/1.4/download.html</a></p>
+              </blockquote>
+              <p>Previous versions of the JRE did not automatically install Java 
+                Web Start; you can install it yourself using this link: </p>
+              <blockquote> 
+                <p><a
+ href="http://java.sun.com/cgi-bin/javawebstart-platform.sh?">Download Java Web 
+                  Start</a></p>
+              </blockquote>
+            </li>
+          </ul>
+          <blockquote> 
+            <p>However, the Tetrad 4.2 software requires JRE 1.4.0 or higher to
+              be installed anyway, so it makes more sense to just install JRE 
+              1.4.0.</p>
+          </blockquote>
+          <ul>
+            <li><i>Problem #2: You do have Java Web Start installed, but you've 
+              still being asked to download .jnlp files</i>. If you actually downloaded 
+              the .jnlp file and are trying to double click it to get it to run, 
+              you are running into the same problem; Windows still doesn't know 
+              what program to use to open it. The solution, on a Windows machine, 
+              is to set the &quot;open&quot; action for type &quot;jnlp&quot; 
+              to use &quot;javaws.exe&quot; to open files of this type. The easy 
+              way to do this is as follows.<br>
+              <br>
+            </li>
+          </ul>
+          <ol>
+            <ol>
+              <li> Download the .jnlp file.&nbsp;</li>
+              <li>Right click the .jnlp file..</li>
+              <li>Select "Open with..."--&gt;"Choose Program."</li>
+              <li>Click "Other..."&nbsp;</li>
+              <li>Navigate to C:\Program Files\Java Web Start\javaws.exe and open 
+                it.</li>
+              <li>Check "Always use this program to open these file."</li>
+              <li>Click "OK."<br>
+                <br>
+              </li>
+            </ol>
+          </ol>
+          </li>
+        <li><b>Java Web Start told you that you need version 1.4+ of the JRE, 
+          and you dutifully downloaded (and installed!) version 1.4+ of the JRE, 
+          but you still can't launch Tetrad.</b> </li>
+      </ol>
+      <ol>
+        <ul>
+          <li>Most likely you didn't register version the version of the JRE you 
+            just installed with Java Web Start. You can do this as follows.<br>
+            <br>
+          </li>
+        </ul>
+        <ol>
+          <ol>
+            <li>Open the Java Web Start console. 
+              <ul>
+                <li>Windows: If you have the icon still on your desktop or in 
+                  your Start menu, double click it. Otherwise, find &quot;javaws.exe&quot; 
+                  and double click that.</li>
+                <li>Linux: Find &quot;javaws&quot; and run it from the command 
+                  line.</li>
+              </ul>
+            </li>
+            <li>Select &quot;Preferences&quot; and click the &quot;Java&quot; 
+              tab.</li>
+            <li>Add your newly installed JRE 1.4 to the list of JRE's using the 
+              tools provided.</li>
+          </ol>
+        </ol>
+      </ol>
+      <hr>
+      <p><i>jdramsey@andrew.cmu.edu</i></p>
+    </td>
+  </tr>
+  </tbody> 
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>

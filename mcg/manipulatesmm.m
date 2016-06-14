@@ -15,8 +15,8 @@ manipulatedSMM = smm;
 y =  manipulatedVars(y);
 y = reshape(y, length(y), 1);
 if ~isempty(x)
-    manipulatedSMM.graph(sub2ind(size(mag.graph), x, y))= 0;
-    manipulatedSMM(sub2ind(size(mag.graph), y, x)) = 0;
+    manipulatedSMM(sub2ind(size(smm), x, y))= 0;
+    manipulatedSMM(sub2ind(size(smm), y, x)) = 0;
 %     if screen
 %         fprintf('Removing edges into manipulatedVars: %s\n', num2str(x'));
 %     end

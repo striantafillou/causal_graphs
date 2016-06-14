@@ -1,0 +1,53 @@
+Peter,
+
+This is something of a rush job, but it should work for Subramani's purposes.
+To run, download the jar tetradcmd.jar at:
+
+http://www.phil.cmu.edu/projects/tetrad_download/download/tetradcmd-4.3.3-1.jar
+
+(or update tetrad cvs and run the cmdjar Ant task, then find tetradcmd.jar in
+the upload directory).
+
+Put this jar in the directory you intend to work in, together with the data file
+(which I assume here to be munin1.txt), and type (copy/paste?) this command:
+
+java -jar tetradcmd-4.3.3-1.jar -data munin1.txt -datatype discrete -algorithm
+fci -depth 3 -significance 0.5 -level finer
+
+I'm assuming that tetradcmd.jar and munin1.txt are in the same directory you're
+typing in. I'm assuming you're on a Unix-type machine and have JDK 1.4.2 or
+higher installed. I'm assuming munin1.txt is the data file that was sent to me
+earlier with 189 variables and 5000 cases. I'm assuming that the delimiter for
+the data file is whitespace, or regex " *[\t ] *".
+
+The flags “-data”, “-datatype”, and “-algorithm” are required.
+
+“-data” must be followed by the path to the data file.
+
+“-datatype” must be followed by either “continuous” or “discrete”.
+
+“-algorithm” must be followed by either “pc” or “fci”.
+
+“-depth” is by default -1 (unlimited) but may be followed by any integer >= -1.
+
+“-significance” is by default 0.05 but may be set to any number in the range
+[0.0, 1.0].
+
+“-level” is by default “finer” but may be set to any of the following: “severe”,
+“warning”, “info”, “config”, “fine”, “finer”, “finest”. This sets the least
+level of logging messages that are printed out.
+
+The above input should generate the following output to standard out:
+
+1. A message that data is being loaded, path to file, data type.
+
+2. When data is loaded, a message indicating # variables and # cases.
+
+3. All of the logged output for the algorithm of choice at the logging level
+specified.
+
+4. The final graph.
+
+Joe
+
+

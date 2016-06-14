@@ -1,0 +1,50 @@
+Tetrad IV is set up to be loaded and run in Intellij IDEA (v. 5.1.1 currently,
+7/10/2006). After you've obtained the code etc. in the .../tetrad directory,
+to set it up in IDEA do the following:
+
+1. File-->New Project
+
+2. Fill in:
+
+    * Name = Tetrad
+    * Project File Location = path to the .../tetrad directory.
+    * NEXT
+
+3. Fill in:
+
+    * Project JDK = path to a JDK 1.5+.
+    * NEXT
+
+4. Single Module Project should be selected.
+
+    * NEXT
+
+5. Java Module should be selected.
+
+    * NEXT
+
+6. Module content name and path should be selected for you.
+
+    * NEXT
+
+7. Source directory should have been found for you.
+
+    * NEXT
+
+8. Don't bother getting the output directory right quite yet. (See below.)
+
+    *FINISH
+
+9. Click Ant Build on the right border. Click the little plus.
+Select .../tetrad/build.xml. When it appears in the Ant Build columns,
+right click on it. Select Properties.  Click Additional Classpath.
+Add all the jars in /tetrad/lib.
+
+10. Double click the compile target in Ant to run it.
+
+11. Click the little wrench in the tool palette (to the right of the green
+triangle).  Click Modules. Click paths. Set the output path to
+.../tetrad/build/tetrad/classes. Click Libraries. Make sure all of the
+jars in .../tetrad/lib are on in the list. Set the language level to 5.0.
+
+That should be enough to get started.

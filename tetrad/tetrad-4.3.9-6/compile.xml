@@ -1,0 +1,470 @@
+<?xml version="1.0"?>
+
+<!--
+
+==========================================================================
+
+This build script requires Ant 1.6.2+. You can download Ant at
+http://jakarta.apache.org/ant/index.html.
+
+To use the (default) test target you will need to add a jar to the ant lib
+directory for junit - see the Ant manual.
+
+Tetrad IV is currently (2005/1/15) using Sun's JDK 1.5.0+.
+
+To use this build script, assuming you've downloaded and unzipped the source
+code archive (how else could you see this?), installed the JDK correctly,
+installed Ant correctly, setting the JAVA_HOME and ANT_HOME environment
+variables and adding the java bin and Ant bin directories to your PATH, it
+should be sufficient to cd to the tetrad directory and type "ant" to compile
+the project. "ant ejar" will build an executable jar for the project, which
+will be deposited in build/upload. Typing "ant docs" will build the javadocs
+for the project. (If it doesn't, exclude some of the packages from the build.
+Cygwin seems to have difficulty issuing the entire javadoc command that ant
+generates.) Typing "ant clean" will delete the build directory. Typing "ant lib"
+will generate the library jar and library documentation.
+
+All generated jars and zip files will be deposited into build/tetrad/upload.
+
+If you're using an IDE to look at Tetrad code, please use /build/tetrad/classes
+as your classes (output) directory for the IDE to synchronize Ant with the IDE.
+
+To run all of the unit tests, first put the junit.jar (in lib/ant_jars) archive
+into the ant lib directory and then type "ant test" from the tetrad directory.
+
+Laboratory for Symbolic and Educational Computing
+Department of Philosophy
+Carnegie Mellon University
+$Revision: 6858 $ $Date: 2008-06-10 15:12:42 -0400 (Tue, 10 Jun 2008) $
+
+Joseph Ramsey, jdramsey@andrew.cmu.edu
+
+==========================================================================
+-->
+
+<project default="compile" basedir=".">
+
+    <!-- ================================================================ -->
+    <!-- Initialization target                                            -->
+    <!-- ================================================================ -->
+    <target name="init">
+        <tstamp>
+            <format property="YEAR_MONTH_DAY" pattern="yyyy-MM-dd"/>
+            <format property="YEAR" pattern="yyyy"/>
+        </tstamp>
+        <property name="Name" value="Tetrad"/>
+        <property name="name" value="tetrad"/>
+
+        <!--This creates a new property 'version' and reads the value in-->
+        <loadfile srcfile="project/resources/version" property="version"/>
+
+        <echo message="${Name} ${version} ${YEAR_MONTH_DAY}"/>
+
+        <property file="ant.properties"/>
+
+        <property name="build.compiler" value="classic"/>
+        <property name="debug" value="on"/>
+        <property name="optimize" value="on"/>
+        <property name="deprecation" value="off"/>
+        <property name="verbose" value="off"/>
+
+        <property name="src" value="./src"/>
+        <property name="lib" value="./lib"/>
+        <property name="project" value="./project"/>
+        <property name="docs" value="./docs"/>
+
+        <property name="javahelp" value="./docs/javahelp"/>
+        <property name="packages" value="edu.cmu.*"/>
+        <property name="overview"
+                  value="${src}/edu/cmu/phil/tetradapp/overview.html"/>
+        <property name="resources" value="${project}/resources"/>
+
+        <property name="build" value="./build"/>
+        <property name="build.dir" value="${build}/${name}"/>
+        <property name="build.classes" value="${build.dir}/classes"/>
+        <property name="build.docs" value="${build.dir}/docs"/>
+        <property name="build.javadocs" value="${build.docs}/javadocs"/>
+
+        <property name="build.model" value="${build.dir}/model_contents"/>
+        <property name="build.ejar" value="${build.dir}/ejar_contents"/>
+        <property name="dist" value="${build.dir}/dist"/>
+        <property name="upload" value="${build.dir}/upload"/>
+        <property name="junit_reports" value="./junit_reports"/>
+
+        <property name="jdepend" value="${build.dir}/jdepend"/>
+
+        <mkdir dir="${build}"/>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Cleans build directories.                                        -->
+    <!-- ================================================================ -->
+    <target name="clean" depends="init"
+            description="Cleans build directories.">
+        <delete dir="${build}"/>
+        <delete dir="${junit_reports}"/>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Cleans build directories.                                        -->
+    <!-- ================================================================ -->
+    <target name="copyresources" depends="init"
+            description="Copies necessary resources to the build directory.">
+        <copy todir="${build.classes}/resources">
+            <fileset dir="${resources}"/>
+        </copy>
+        <copy todir="${build.classes}/javahelp">
+            <fileset dir="${javahelp}"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Switch to use play configuration. (Recopies resources.)          -->
+    <!-- ================================================================ -->
+    <target name="configuration-play" depends="init"
+            description="Prepares to use play configuration.">
+        <delete file="${resources}/configuration.xml"/>
+        <copy tofile="${resources}/configuration.xml"
+              file="${resources}/configuration-play.xml">
+        </copy>
+        <copy todir="${build.classes}/resources">
+            <fileset dir="${resources}"/>
+        </copy>
+        <copy todir="${build.classes}/javahelp">
+            <fileset dir="${javahelp}"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Switch to use post configuration. (Recopies resources.)          -->
+    <!-- ================================================================ -->
+    <target name="configuration-post" depends="init"
+            description="Prepares to use post configuration.">
+        <delete file="${resources}/configuration.xml"/>
+        <copy tofile="${resources}/configuration.xml"
+              file="${resources}/configuration-post.xml">
+        </copy>
+        <copy todir="${build.classes}/resources">
+            <fileset dir="${resources}"/>
+        </copy>
+        <copy todir="${build.classes}/javahelp">
+            <fileset dir="${javahelp}"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Compiles the source directory                                    -->
+    <!-- ================================================================ -->
+    <target name="compile" depends="copyresources"
+            description="Compiles the source directory.">
+        <mkdir dir="${build.classes}"/>
+        <javac srcdir="${src}"
+               destdir="${build.classes}"
+               debug="${debug}"
+               source="1.5"
+               deprecation="${deprecation}"
+               excludes="**/package.html"
+               compiler="modern"
+                fork="true"
+               memoryinitialsize="80m"
+               memorymaximumsize="500m">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="colt.jar"/>
+                    <include name="commons-collections-3.1.jar"/>
+                    <include name="jdepend.jar"/>
+                    <include name="jh.jar"/>
+                    <include name="junit.jar"/>
+                    <include name="jxl.jar"/>
+                    <include name="mrjtoolkitstubs.jar"/>
+                    <include name="opt77.jar"/>
+                    <include name="pal-1.4.jar"/>
+                    <include name="xom-1.1.jar"/>
+                    <include name="Jama-1.0.2.jar"/>
+                    <include name="lapack.jar"/>
+                    <include name="lapack_simple.jar"/>
+                    <include name="blas.jar"/>
+                    <include name="blas_simple.jar"/>
+                    <include name="f2jutil.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Creates the executable jar file                                  -->
+    <!-- ================================================================ -->
+    <target name="unsignedejar" depends="compile"
+            description="Creates an executable jar file.">
+        <loadfile srcfile="project/resources/version" property="version"/>
+
+        <copy todir="${build.ejar}">
+            <fileset dir="${build.classes}"/>
+        </copy>
+        <unjar src="${lib}/commons-collections-3.1.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/colt.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/jh.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/pal-1.4.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/mrjtoolkitstubs.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/xom-1.1.jar" dest="${build.ejar}"/>
+
+        <delete dir="${upload}"/>
+        <mkdir dir="${upload}"/>
+        <jar jarfile="${upload}/${name}-${version}.jar"
+             excludes="META-INF/MANIFEST.MF"
+             basedir="${build.ejar}"
+             manifest="${project}/manifest.mf"/>
+        <copy file="${project}/tetrad-template.jnlp"
+              tofile="${upload}/tetrad-${version}.jnlp"/>
+        <replace file="${upload}/tetrad-${version}.jnlp"
+                 token="##VERSION##" value="${version}"/>
+    </target>
+
+    <target name="cmdjar" depends="compile"
+            description="Creates command-line jar file.">
+        <loadfile srcfile="project/resources/version" property="version"/>
+
+        <copy todir="${build.ejar}">
+            <fileset dir="${build.classes}"/>
+        </copy>
+        <unjar src="${lib}/commons-collections-3.1.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/colt.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/jh.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/jxl.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/pal-1.4.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/mrjtoolkitstubs.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/xom-1.1.jar" dest="${build.ejar}"/>
+
+        <delete dir="${upload}"/>
+        <mkdir dir="${upload}"/>
+        <jar jarfile="${upload}/${name}cmd-${version}.jar"
+             excludes="META-INF/MANIFEST.MF"
+             basedir="${build.ejar}"
+             manifest="${project}/cmdmanifest.mf"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Runs JUnit tests (does not build ejar first)                        -->
+    <!-- =================================================================== -->
+    <target name="test" depends="compile"
+            description="Runs all JUnit tests. Prefix for JUnit test classes is 'Test'.">
+        <echo message="Look in the 'junit_reports' directory for JUnit reports."/>
+        <mkdir dir="${junit_reports}"/>
+        <junit printsummary="off" haltonerror="yes" fork="yes" maxmemory="50M">
+            <formatter type="plain"/>
+            <classpath>
+                <pathelement location="${build.classes}"/>
+                <fileset dir="${lib}">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+            <batchtest fork="no" todir="${junit_reports}">
+                <fileset dir="${src}">
+                    <include name="**/Test*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Makes the javadocs and puts all the docs into a single directory.-->
+    <!-- ================================================================ -->
+    <target name="docs" depends="init"
+            description="Creates documentation, including javadocs.">
+        <loadfile srcfile="project/resources/version" property="version"/>
+
+        <mkdir dir="${build.docs}"/>
+        <mkdir dir="${build.javadocs}"/>
+        <mkdir dir="${upload}"/>
+
+        <loadfile srcfile="COPYRIGHT" property="copyright"/>
+
+        <javadoc packagenames="${packages}"
+                 destdir="${build.javadocs}"
+                 author="true"
+                 version="true"
+                 verbose="false"
+                 use="true"
+                 noindex="false"
+                 source="1.5"
+                 windowtitle="${Name} ${version} Javadocs"
+                 doctitle="${Name} ${version}"
+                 overview="${overview}"
+                 bottom="${copyright}">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+            <fileset dir="${src}">
+                <include name="**/*.java"/>
+                <exclude name="**/Test*.java"/>
+            </fileset>
+        </javadoc>
+        <copy todir="${build.docs}">
+            <fileset dir="${docs}"/>
+        </copy>
+
+        <mkdir dir="${upload}"/>
+        <zip zipfile="${upload}/tetraddocs-${version}.zip"
+             basedir="${build.dir}/docs"/>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Compiles the source directory                                    -->
+    <!-- ================================================================ -->
+    <target name="libcompile" depends="init"
+            description="Compiles the source directory.">
+        <mkdir dir="${build.dir}/lib/classes"/>
+        <javac
+                destdir="${build.dir}/lib/classes"
+                debug="${debug}"
+                verbose="${verbose}"
+                optimize="${optimize}"
+                source="1.5"
+                deprecation="${deprecation}">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+            <src path="${src}"/>
+            <include name="edu/cmu/tetrad/util/*.java"/>
+            <include name="edu/cmu/tetrad/graph/*.java"/>
+            <include name="edu/cmu/tetrad/data/*.java"/>
+            <include name="edu/cmu/tetrad/bayes/*.java"/>
+            <include name="edu/cmu/tetrad/sem/*.java"/>
+            <include name="edu/cmu/tetrad/search/*.java"/>
+            <exclude name="edu/cmu/tetrad/search/test/*.java"/>
+            <include name="edu/cmu/tetrad/predict/*.java"/>
+        </javac>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Creates javadocs for the library jar.                            -->
+    <!-- ================================================================ -->
+    <target name="libdocs" depends="init"
+            description="Creates documentation, including javadocs.">
+        <loadfile srcfile="project/resources/version" property="version"/>
+
+        <javadoc
+                sourcepath="${src}"
+                destdir="${build.dir}/lib/docs/javadocs"
+                author="true"
+                version="true"
+                verbose="false"
+                use="true"
+                noindex="false"
+                source="1.5"
+                windowtitle="${Name} ${version} API"
+                doctitle="${Name} v. ${version}"
+                overview="${overview}"
+                bottom="Tetrad v. 4.2, Copyright &#169; ${YEAR}, Laboratory for Symbolic and Educational Computing, Philosophy Department, Carnegie Mellon University.  All rights reserved. For information contact Joe Ramsey, jdramsey@andrew.cmu.edu.">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+            <fileset dir="${src}">
+                <include name="edu/cmu/tetrad/bayes/*.java"/>
+                <include name="edu/cmu/tetrad/data/*.java"/>
+                <include name="edu/cmu/tetrad/graph/*.java"/>
+                <!--                <include name="edu/cmu/tetrad/predict/*.java"/>-->
+                <include name="edu/cmu/tetrad/search/*.java"/>
+                <include name="edu/cmu/tetrad/sem/*.java"/>
+                <include name="edu/cmu/tetrad/util/*.java"/>
+                <exclude name="**/Test*.java"/>
+            </fileset>
+        </javadoc>
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Creates the executable jar file                                  -->
+    <!-- ================================================================ -->
+    <target name="lib" depends="libcompile,libdocs"
+            description="Creates an executable jar file.">
+        <loadfile srcfile="project/resources/version" property="version"/>
+
+        <mkdir dir="${build.dir}/lib/jarcontents"/>
+        <copy todir="${build.dir}/lib/classes">
+            <fileset dir="${build.dir}/lib/jarcontents"/>
+        </copy>
+        <unjar src="${lib}/colt.jar" dest="${build.dir}/lib/jarcontents"/>
+        <unjar src="${lib}/jh.jar" dest="${build.dir}/lib/jarcontents"/>
+        <unjar src="${lib}/pal-1.4.jar" dest="${build.dir}/lib/jarcontents"/>
+        <unjar src="${lib}/mrjtoolkitstubs.jar"
+               dest="${build.dir}/lib/jarcontents"/>
+
+        <mkdir dir="${upload}"/>
+        <jar jarfile="${upload}/${name}lib-${version}.jar"
+             basedir="${build.dir}/lib/jarcontents"/>
+        <jar jarfile="${upload}/${name}libdocs-${version}.jar"
+             basedir="${build.dir}/lib/docs"/>
+    </target>
+
+
+    <!-- ================================================================ -->
+    <!-- Creates the jar file used by Causality Lab 2.0                   -->
+    <!-- ================================================================ -->
+    <target name="causalitylibcompile" depends="init"
+            description="compile classes needed by causality lib">
+        <mkdir dir="${build.dir}/causalitylib/classes"/>
+        <javac
+                destdir="${build.dir}/causalitylib/classes"
+                debug="${debug}"
+                verbose="${verbose}"
+                optimize="${optimize}"
+                source="1.5"
+                deprecation="${deprecation}">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+            <src path="${src}"/>
+            <include name="edu/cmu/tetrad/util/*.java"/>
+            <include name="edu/cmu/tetrad/graph/*.java"/>
+            <include name="edu/cmu/tetrad/data/*.java"/>
+            <include name="edu/cmu/tetrad/bayes/*.java"/>
+            <include name="edu/cmu/tetrad/sem/*.java"/>
+            <include name="edu/cmu/tetrad/search/*.java"/>
+            <exclude name="edu/cmu/tetrad/search/test/*.java"/>
+            <include name="edu/cmu/tetrad/predict/*.java"/>
+
+            <include name="edu/cmu/tetradapp/editor/*.java"/>
+            <include name="edu/cmu/tetradapp/model/*.java"/>
+            <include name="edu/cmu/tetradapp/workbench/*.java"/>
+        </javac>
+
+    </target>
+
+    <!-- ================================================================ -->
+    <!-- Creates the executable jar file                                  -->
+    <!-- ================================================================ -->
+    <target name="causalitylib" depends="causalitylibcompile"
+            description="Creates an executable jar file.">
+
+        <loadfile srcfile="project/resources/version" property="version"/>
+
+        <mkdir dir="${build.dir}/causalitylib/jarcontents"/>
+        <copy todir="${build.dir}/causalitylib/jarcontents">
+            <fileset dir="${build.dir}/causalitylib/classes"/>
+        </copy>
+        <unjar src="${lib}/commons-collections-3.1.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/colt.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/jh.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/jh.har" dest="${build.ejar}"/>
+        <unjar src="${lib}/pal-1.4.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/mrjtoolkitstubs.jar" dest="${build.ejar}"/>
+        <unjar src="${lib}/xom-1.1.jar" dest="${build.ejar}"/>
+
+        <mkdir dir="${upload}"/>
+        <jar jarfile="${upload}/${name}causalitylib-${version}.jar"
+             basedir="${build.dir}/causalitylib/jarcontents"/>
+    </target>
+
+    <target name="run" depends="unsignedejar" description="Runs Tetrad.">
+        <java jar="${upload}/${name}-${version}.jar" fork="true"/>
+    </target>
+
+</project>

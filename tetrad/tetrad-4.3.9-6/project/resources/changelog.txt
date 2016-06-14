@@ -1,0 +1,251 @@
+This file lists notable changes to Tetrad IV since version 4.3.6.
+
+4.3.6
+
+* Rendered Bayes updater interface less clunky. Fixed the problem of category
+buttons not shading correctly in Java 1.5 and Macs. Added a notification to let
+the user know when they're trying to update a Bayes IM that's not completely
+specified.
+
+* Repaired the help button for searches so that it actually opens up the help
+file for those searches. Corrected help files for most searches.
+
+* Lined up columnar output in regression editor for platforms in which it was
+not lined up.
+
+* Specified null hypotheses for SEM chi square tests where used in the
+interface (SEM estimator, parameters tab of pattern searches).
+
+* Removed some items from the interface that weren't working correctly: Logistic
+regression, Structural EM, CEFS. (These will be re-added when the underlying
+issues are fixed.)
+
+4.3.6-1
+
+* Added this change log to the downloads page.
+
+* Improved the discretizer some. If no variables are selected, all variables are
+discretized. The displayed number of categories is now synced with the number
+of bins displayed for discretizing continuous data.
+
+* Changed "unfaithful" to "ambiguous" for CPC, to reflect the fact that for
+finite sample sizes it's detecting (and underlining) examples of near-unfaithfulness,
+not necessarily unfaithfulness per se. (Made similar change to CFCI.)
+
+* Fixed knowledge in FCI so that if X<-oY and Forbidden(X-->Y), the edge will
+be oriented as X<->Y.
+
+* Modified the case expander so that it can expand cases for mixed data set.
+
+* Reorganized the tools menu of the Data Editor a bit and added a gadget to
+split datasets by cases.
+
+4.3.6-2
+
+* Put the BPC algorithm back from last August to fix a subtle bug in recent
+versions.
+
+* Modified reading for discrete data so that categories for defined variables
+are treated as fixed. For example, if a variable X is defined to have categories
+"true" and "false," and in the data column for X the string "red" appears, this
+string is treated as a missing value for the column rather as an additional
+category for the column. Also, in variable definitions, the syntax for a
+definition of categories is changed from X:0=off,1=on to X:off,on.
+
+* Any session node that in the editor interface edits parameter values has been
+tagged as un uncancellable operation for now so that parameter values can be
+passed to the simulation algorithm. Hopefully a better way of doing this will
+be conceived of eventually.
+
+4.3.6-6
+
+* Modified simulation study behavior so that it logs while traversing the
+execution tree. This involved adding logging behavior to relevant modules,
+including updating.
+
+* Fixed knowledge bug in PC. Now knowledge is invoked to determine whether a
+set S of variables consists entirely of potential parents of X or potential
+parents of Y, before using that set as a conditioning set to remove the edge
+from X to Y. Previously, it was insisted that S consist of potential parents
+of both X and Y.
+
+4.3.6-7
+
+* Fixed a bug in use of knowledge in PC. Used to be that for removing A---B,
+it was insisted that variables in the conditioning set be potential parents
+of both A and B. Now it is insisted that they all be potential parents of A or
+of B.
+
+* Added a gadget to interpolate means of columns for missing values in the
+data editor.
+
+* Added support in SEM IM to automatically enter and calculate variable
+intercepts for acyclic models. The underlying model is still parameterized
+using variable means, so the intercepts are calculated.
+
+* Added GUI support for viewing either means or intercepts in the SEM IM Editor
+for acyclic SEMs. Fixed some old labeling problems for popup mean editors.
+
+* A bug in the construction of SEM PM's was fixed. When a graph was provided
+for constructing a SEM PM that contained edges not directed or bidirected,
+these edges were stripped from the graph. Now an exception is thrown.
+
+4.3.6-8
+
+* Add new data loading interface to support mixed tabular data loading, and
+faster loading of large discrete data sets, among other things.
+
+* Fixed bug in classifier, in which the target of classification was required
+to be in the test set for Bayesian classification.
+
+4.3.6-9
+
+* Added knowledge sensitivity to MBFS.
+
+* Added stats tabs for discrete pattern-based searches.
+
+* Added tool to pattern-producing search editors to let the user automatically
+add orientations implied by local orientation changes.
+
+* Added an experimental score-based reorientation procedure.
+
+* Added checks for tabular data checks and covariance matrices so that if
+these are manually edited, downstream models (like searches) are invalidated.
+
+* Added a rudimentary graph history mechanism to the pattern searches.
+
+* Fixed bug where when classifier editor was closed and reopened, recent
+classifications were no longer displayed.
+
+* Added "graph properties" menu item to pattern searches.
+
+* Modified the layered drawing layout so that it lays out all connected
+components and does some heuristic edge uncrossing for successive tiers.
+
+4.3.7-0
+
+Stable version--no changes.
+
+4.3.7-1
+
+* Added checks for missing values for continuous independence tests.
+
+* Fixed bug in data editor in which empty data tabs were sometimes inserted
+into the list.
+
+* Added tool to do a global score-based reorientation for pattern-producing
+searches.
+
+* Moved the "close tab" feature in data editor to a right click on the tab to
+be closed.
+
+* Modified the missing data injector so that it works with mixed data sets.
+
+* Clarified use of missing data in data editor and algorithms by writing a help
+page and adding missing value checks to algorithms that don't explicitly
+handle missing data.
+
+* Fixed the parameter editor preventing EM Bayes Estimator from working in the
+interface.
+
+* Added a show/hide error term feature to the SEM IM editor.
+
+* Added a regression missing data imputer to the data editor.
+
+* In the SEM estimator, prefaced the gradient ascent optimizer by the
+regression optimizer to give it a better starting point for cyclic models.
+
+* Modified regression interpolator algorithm.
+
+4.3.7-2
+
+* Modified data loading algorithms so that initial spaces in lines are ignored.
+
+* Changed name of Meek orient menu item back to Meek orient.
+
+* Adjusted "whitespace" delimiter to include all whitespace characters. Adjusted
+other delimiters to not automatically strip leading and trailing whitespace.
+
+4.3.7-3
+
+* Fixed DAGs in Pattern tool so that it works for GES.
+
+* Fixed intermittent bug in SEM graph where exogenous nodes were sometimes
+being returned as null.
+
+* Added a copy graph gadget to the DAGs in Pattern.
+
+* Added bidirected and undirected edge highligher tools to graph editors and
+PC/GES search editors.
+
+* Changed instruction for Bootstrap Sample to read, "with replacement."
+
+4.3.7-4
+
+* Added histograms for the data editor.
+
+4.3.7-5
+
+* Improved the interface for Multiple Linear Regression and Logistic Regression
+with drag-and-drop variable selectors.
+
+4.3.7-6
+
+* Added menu item in PC/GES search editor to choose an arbitrary DAG in
+a pattern.
+
+* Moved items from Data-->Tools menu to a new Data Manipulation box,
+including bootstrap sampler, discretizer, and several others. Changed some
+editors to accomodate.
+
+* Buttons re-added to regression editors to move variables.
+
+* Added a tree view model selector for nodes with many models (e.g. data manip,
+search).
+
+* Switched the internal configuration to an XML file.
+
+* Added menu item to save out histogram image.
+
+* Fixed show/hide error terms problem in SEM PM.
+
+* Fixed bug where variance parameters and values were not being shown in the
+SEM PM and IM editors.
+
+* Added Other Groups feature to knowledge editor.
+
+* Revised the discretizer editor.
+
+* Revised the regression editor to allow both drag-and-drop and button-press
+variable moves.
+
+4.3.7-7
+
+* Fixed a bug preventing Bayes updater from working.
+
+* Added MMHC (with GES in place of HC) to Tetrad; commented out of interface
+for now.
+
+4.3.8-0
+
+4.3.8-1
+
+* Problems of binding correct parameters to correct editors in SEM PM and SEM IM
+fixed.
+
+* New logging facility added that lets user log specific events.
+
+4.3.8-4
+
+* Rewrite tabular regression model and added covariance regression model.
+
+* Fixed problem of not being able to run Purify, BPC, and Mimbuild from
+covariance matrices.
+
+4.3.8-6
+
+--Uh, forgot to add several things. Will try to go back and add them.
+
+* Changed data saver so that it can save out mixed data.
+
+### INTERIM VERSION; MORE CHANGES WILL BE POSTED AS THEY ARE MADE ###

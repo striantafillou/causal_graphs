@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for Tetrad application -->
+<jnlp
+    spec="1.0+"
+    codebase="http://www.phil.cmu.edu/projects/tetrad_download/"
+    href="launchers/tetrad-##VERSION##.jnlp">
+    <information>
+        <title>Tetrad ##VERSION##</title>
+        <vendor>Philosophy, Carnegie Mellon University</vendor>
+        <homepage href="index.html"/>
+        <description>Tetrad Application, Version ##VERSION##</description>
+        <description kind="short">Causal analysis tool.</description>
+        <offline-allowed/>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.4+" max-heap-size="300M"/>
+        <jar href="download/tetrad-##VERSION##.jar"/>
+    </resources>
+    <application-desc main-class="edu.cmu.tetradapp.Tetrad"/>
+</jnlp>
