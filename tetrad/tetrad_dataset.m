@@ -1,7 +1,7 @@
 function ds = tetrad_dataset(dataset)
 import edu.cmu.tetrad.*
 import java.util.*
-%import java.lang.*
+import java.lang.*
 import edu.cmu.tetrad.data.*
 
 [nSamples,nVars] = size(dataset.data);
@@ -11,7 +11,7 @@ for i=1:nVars
     %ContinuousVariable(['X' num2str(i)]);
     list.add(var);
 end
-ds = ColtDataSet(nSamples,list);
+ds = javaObject('edu.cmu.tetrad.data.ColtDataSet', nSamples,list);
 for i=0:(nSamples-1)
     for j=0:(nVars-1)
         ds.setDouble(i,j,dataset.data((i+1),(j+1)));

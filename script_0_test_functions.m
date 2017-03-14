@@ -40,6 +40,29 @@ isAncSmm = findancestors(smm);
 msepnodes =findmseparations(smm, 1,2, isAncSmm, isLatent);
 fprintf('Nodes %s are m-separated from node 1 given node 2 in smm\n', num2str(msepnodes));
 
+% simulate oracle data set
+dataset= simulateoracledata(dag, 'isLatent', isLatent);
 
+pag = FCI(dataset);
+
+[mag, sat] = pag2mag(pag);
+%% test FCI
+%1. with a small networl
+
+% create a network with 20 variables
+nVars=20;maxParents=5;
+dag = randomdag(nVars, maxParents);
+% three variables are latent
+isLatent= false(1, nVars);
+isLatent(randsample(1:nVars, 3))=true;
+% create a data set with 500 samples
+bn = dag2randBN(dag, 'discrete');
+
+
+dataset = simulatedata(bn, 500, 'discrete', 'domainCounts', 3*ones(1,  nVars), 'isLatent', isLatent);
+
+pag = FCI(dataset);
+
+[mag, sat] = pag2mag(pag);
 
 

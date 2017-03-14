@@ -80,10 +80,10 @@ end
 
 end
 
-function [Pag flag] = R1(Pag, flag, screen)
+function [Pag, flag] = R1(Pag, flag, screen)
 % If a*->bo-*c and a,c not adjacent ==> a*->b->c
 
-[c b] = find(Pag == 1);
+[c, b] = find(Pag == 1);
 len = length(c);
 for i = 1:len
     if(Pag(c(i),b(i)) == 1 && any(Pag(:,b(i)) == 2 & Pag(:,c(i)) == 0))
@@ -98,10 +98,10 @@ end
 
 end
 
-function [Pag flag] = R2(Pag, flag, screen)
+function [Pag, flag] = R2(Pag, flag, screen)
 % If a->b*->c or a*->b->c, and a*-oc ==> a*->c
 
-[a c] = find(Pag == 1);
+[a, c] = find(Pag == 1);
 len = length(a);
 for i = 1:len
     if(Pag(a(i),c(i)) == 1 && any(Pag(a(i),:) == 2 & Pag(:,c(i))' == 2 & (Pag(:,a(i))' == 3 | Pag(c(i),:) == 3)))
@@ -115,10 +115,10 @@ end
 
 end
 
-function [Pag flag] = R3(Pag, flag, screen)
+function [Pag, flag] = R3(Pag, flag, screen)
 % If a*->b<-*c, a*-o8o-*c, a,c not adjacent, 8*-ob ==> 8*->b
 
-[th b] = find(Pag == 1);
+[th, b] = find(Pag == 1);
 nedges = length(th);
 
 for i = 1:nedges
@@ -145,7 +145,7 @@ end
 
 end
 
-function [Pag flag] = R4(Pag, mag, flag, screen)
+function [Pag, flag] = R4(Pag, mag, flag, screen)
 
 % Start from some node X, for node Y
 % Visit all possible nodes X*->V & V->Y

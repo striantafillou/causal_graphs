@@ -1,5 +1,5 @@
-function dag = randomDag(nVars, maxParents)
-% function DAG = randomDag(NVARS, MAXPARENTS) Generates a random dag over nVars
+function dag = randomdag(nVars, maxParents)
+% function DAG = randomdag(NVARS, MAXPARENTS) Generates a random dag over nVars
 % variables where each variable has at most maxParents parents. (the number
 % of parents for each node is drawn from uniformly from 1 to maxParents.
 %

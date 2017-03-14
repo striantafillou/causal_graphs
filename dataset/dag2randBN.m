@@ -49,10 +49,11 @@ if isequal(type, 'discrete')
         arrayfun(@(x)sprintf('x%i',x),1:numNodes,'uniformOutput',false));
 elseif isequal(type, 'gaussian')
     [miMinValue, miMaxValue, sMinValue, sMaxValue, betaMinValue, betaMaxValue, headers] = process_options(varargin,...
-        'miMinValue', 0, 'miMaxValue', 0,  'sMinValue', 1, 'sMaxValue',1, 'betaMinValue', 0.2, 'betaMaxValue', 0.9, 'headers', ...
+        'miMinValue', 0, 'miMaxValue', 0,  'sMinValue', 1, 'sMaxValue',1, 'betaMinValue', 0.1, 'betaMaxValue', 0.9, 'headers', ...
         arrayfun(@(x)sprintf('x%i',x),1:numNodes,'uniformOutput',false));
 else
-    errprintf('Unknown data type: %s\n', type);
+    fprintf('Unknown data type: %s\n', type);
+    return;
 end
 
 if isequal(type, 'discrete');

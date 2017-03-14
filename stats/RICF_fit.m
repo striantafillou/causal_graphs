@@ -1,17 +1,4 @@
-
-% function [beta, omega, hatCovMat, ricf] = RICF(smm, ds)
-% isLatent = ds.isLatent;
-% smm = smm(~isLatent, ~isLatent);
-% covMat = cov(ds.data(:, ~isLatent));
-% 
-% nVars = size(ds.data, 2);
-% 
-% beta, omega, hatCovMat = zeros(nVars);
-% [beta_tmp, omega_tmp, hatCovMat_tmp, ricf]
-% 
-% end
-
-function [beta, omega, hatCovMat, ricf] = RICF(smm, covMat, tol)
+function [beta, omega, hatCovMat, ricf] = RICF_fit(smm, covMat, tol)
 
 if any(eig(covMat)<= 0);
     errprintf('Covariance matrix is not positive definite\n')
@@ -58,7 +45,7 @@ while true
                    omega(iVar, iVar) = covMat(iVar, iVar) + beta(iVar, iPar)*covMat(iPar, iVar);
                end
            end
-       elseif ~isempty(iPar)
+       elseif ~isempty(iPar) % spouses and parents
            oInv = zeros(nVars, nVars);
            oInv(vcomp, vcomp) = inv(omega(vcomp, vcomp)); %\Omega_{-i, -i}^-1
            Z = oInv(iSp, vcomp)*beta(vcomp, :);
@@ -98,6 +85,16 @@ while true
            tempVar = covMat(iVar, iVar)-omega(iVar,iSp)*YX;
            omega(iVar, iVar) = tempVar+ omega(iVar, iSp)*oInv(iSp, iSp)*omega(iSp, iVar);
        end
+%        fprintf('iteration %d, variable %d------------\n',iter, iVar);
+%        fprintf('Changed:\n');
+% 
+%        [x, y]= find(ricf(iter).omega-omega); [w,z] = find(ricf(iter).beta-beta);
+%        for iX =1:length(x)
+%            fprintf('%d-%d, %.3f --> %.3f\n', x(iX), y(iX), ricf(iter).omega(x(iX), y(iX)), omega(x(iX), y(iX)));
+%        end
+%       for iX =1:length(w)
+%            fprintf('%d-%d, %.3f-->%.3f\n', w(iX), z(iX), ricf(iter).beta(w(iX), z(iX)), beta(w(iX), z(iX)));
+%        end
     end
    if (sum(sum(abs(ricf(iter).omega-omega))) + sum(sum(abs(ricf(iter).beta-beta))) < tol)
        break;

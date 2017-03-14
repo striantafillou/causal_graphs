@@ -1,0 +1,6 @@
+Source Interaction Target
+X1 --> X2
+X1 --> X4
+X2 --> X3
+X2 --> X4
+X3 --> X4

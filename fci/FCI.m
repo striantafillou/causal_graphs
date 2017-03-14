@@ -50,7 +50,7 @@ function pag = FCI(dataset, varargin)
 %           'alpha'      rejection region for test of independence. Default 0.05
 %           'maxK'       maximum conditioning set size. Default: 4
 %           'cons'       true (default) for conservative rules for
-%                        colliders(REF??)
+%                        colliders(Ramsey et al, UAI 2006)
 %           'pdSep'      false (default) for skipping the possible
 %                        d-separating step of FCI (see SGS, p.187)
 %           'verbose'    true for screen output, false(default) otherwise.
@@ -58,10 +58,10 @@ function pag = FCI(dataset, varargin)
 %                        otherwise.
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if isequal(dataset.type , 'disc') % discrete variables 
+if isequal(dataset.type , 'discrete') % discrete variables 
   [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] = ...
       process_options(varargin, 'test', 'g2test_2', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false);
-elseif isequal(dataset.type , 'gaussian')
+elseif isequal(dataset.type , 'continuous')
    [test,  heuristic, alpha,  maxK, pdSep, cons, verbose] =...
        process_options(varargin, 'test', 'fisher', 'heuristic', 3, 'alpha', 0.05, 'maxK', 4, 'pdSep', false, 'cons', false, 'verbose', false);
 elseif isequal(dataset.type , 'oracle')
