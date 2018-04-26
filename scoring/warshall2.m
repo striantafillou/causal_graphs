@@ -11,4 +11,5 @@ for k = 1:n
         end
     end
 end
+A(1:n+1:end)  = true;
 end
