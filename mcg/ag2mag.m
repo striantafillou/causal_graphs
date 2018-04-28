@@ -12,7 +12,7 @@ function mag = ag2mag(ag)
 % mag                     = MAG matrix(see folder README file for details)
 % =======================================================================
 nVars = size(ag,1);
-mag = zeros(nVars);
+mag = ag;
 dag =  zeros(size(ag));
 [directedEdgesX, directedEdgesY] =  find(ag ==2 & ag' ==3);
 dag(sub2ind(size(dag),directedEdgesX,directedEdgesY))=1;    
@@ -25,6 +25,7 @@ for X = 1:nVars-1
         % if the pair are not adjacent in the ag and 3 inducing path given empty set
         if ~ag(X, Y) && hasinducingpathmcg(X, Y, ag, isAncestor, isLatent, false)
             if ~isAncestor(X, Y)&&~isAncestor(Y, X)
+                mag(X, Y)=2; mag(Y, X)=2;
             end
         end
     end
