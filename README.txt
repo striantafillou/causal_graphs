@@ -55,6 +55,7 @@ simulateoracle data.m
     .isAncestor           = nVars x nVars ancestor matrix: 
                            isAncestor(i,j) =1 if i is an ancestor of j
                            in graph, 0 otherwise
+
 fci: Includes implementations of the PC and FCI algorithms.
 FCI: FCI algorithm, without the rules for selection bias. calling FCI with rules R0-R4 and pdsep = false is essentially the PC algorithm.
 FCI returns a pag structure with the following fields:

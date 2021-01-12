@@ -30,7 +30,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     s = prhs[1];
     t = prhs[2];
     n = mxGetN(dag);
-    
+  //  mexPrintf("\n %d variables", n);
+   // mexPrintf("\n %d source",(int) *mxGetPr(s)-1);
+   // mexPrintf("\n %d target",(int) *mxGetPr(t)-1);
+  //  mexCallMATLAB(0,NULL,1,&dag,"disp");            
+
     /* The first input must be a sparse matrix. */
     if (mxGetM(dag) != mxGetN(dag) || mxIsSparse(dag))
     {
@@ -38,18 +42,22 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
     
     orient(mxGetPr(dag), (int) *mxGetPr(s)-1, (int) *mxGetPr(t)-1, n);
-    plhs[0] = dag;
+    //mexCallMATLAB(0,NULL,1,&dag,"disp");       
+    plhs[0] =mxDuplicateArray(prhs[0]);
+
+  //  plhs[0] =  &dag;
+
 }
 
 void orient(double *dag, int x, int y, int n) {
     int cur;
-        
+    
     for(cur = 0; cur < n; ++cur) {
+   //     mexPrintf("\n step %d", cur);
         if(*(dag + x * n + cur) == 0 && *(dag + y * n + cur) == 1) {
             *(dag + cur * n + y) = 2;
             *(dag + y * n + cur) = 3;
             orient(dag, y, cur, n);
         }
-    }
-
+   }
 }

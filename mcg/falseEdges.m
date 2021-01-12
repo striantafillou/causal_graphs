@@ -1,4 +1,7 @@
 function [fpEdges, fnEdges] = falseEdges(mcg, gtmcg)
+%[fpEdges, fnEdges] = falseEdges(mcg, gtmcg)
+% false positive, false negative edges of mcg compared to ground truth
+% gtmcg
 
 if isstruct(mcg)
     mcg = mcg.graph;

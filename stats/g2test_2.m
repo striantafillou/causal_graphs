@@ -1,4 +1,4 @@
-function [p, G2, exit_flag]=g2test_2(var1, var2, condvarset, dataset)
+function [p, G2, df, exit_flag]=g2test_2(var1, var2, condvarset, dataset)
 % FUNCTION [P, R, EXITFLAG] = G2TEST_2(VAR1, VAR2, CONDVARSET, DATASET)
 % Fisher test of independence of variable var1 and variable var2 given
 % variables in condvarset.
@@ -32,7 +32,8 @@ if k < 5*prod(domainCounts([var1 var2 condvarset]))
    p=NaN; 
    G2=NaN;
    exit_flag=0;
-   fprintf('Cannot perform  test Ind(%d, %d|[%s]): Not enought sample \n', var1, var2, num2str(condvarset));
+   df=nan;
+ %  fprintf('Cannot perform  test Ind(%d, %d|[%s]): Not enought sample \n', var1, var2, num2str(condvarset));
    return;
 end
 
@@ -124,7 +125,7 @@ G2 =  2*sum(res);
 if df==0
    p=NaN;
    exit_flag=0;
-   fprintf('Cannot perform test Ind(%d, %d|[%s]): Zero dof \n', var1, var2, num2str(condvarset));
+%   fprintf('Cannot perform test Ind(%d, %d|[%s]): Zero dof \n', var1, var2, num2str(condvarset));
 else
    p = 1-chi2cdf(G2,df);
    exit_flag=1;

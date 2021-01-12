@@ -1,4 +1,4 @@
-function [nodes, domainCounts] = dag2randBN(graph, type,  varargin)
+function [nodes, domainCounts, order, rnodes] = dag2randBN(graph, type,  varargin)
 % function [nodes, domainCounts] = dag2randBN(graph, type,  varargin)
 % Converts a DAG into a BN with random parameters. Author:
 % striant@csd.uoc.gr
@@ -45,18 +45,24 @@ domainCounts = nan(1,numNodes);
 
 order = graphtopoorder(sparse(graph));
 if isequal(type, 'discrete')
-    [minNumStates, maxNumStates, headers] = process_options(varargin, 'minNumStates', 2, 'maxNumStates', 5,  'headers', ...
-        arrayfun(@(x)sprintf('x%i',x),1:numNodes,'uniformOutput',false));
-elseif isequal(type, 'gaussian')
+    [minNumStates, maxNumStates,   headers, alpha] = process_options(varargin, 'minNumStates', 2*ones(1, numNodes), 'maxNumStates', 5*ones(1,numNodes),  'headers', ...
+        arrayfun(@(x)sprintf('x%i',x),1:numNodes, 'uniformOutput',false), 'alpha',ones(1, numNodes));
+elseif isequal(type, 'linear')
     [miMinValue, miMaxValue, sMinValue, sMaxValue, betaMinValue, betaMaxValue, headers] = process_options(varargin,...
         'miMinValue', 0, 'miMaxValue', 0,  'sMinValue', 1, 'sMaxValue',1, 'betaMinValue', 0.1, 'betaMaxValue', 0.9, 'headers', ...
         arrayfun(@(x)sprintf('x%i',x),1:numNodes,'uniformOutput',false));
+    
+elseif isequal(type, 'polynomial')
+    [miMinValue, miMaxValue, sMinValue, sMaxValue, betaMinValue, betaMaxValue, pMinOrder, pMaxOrder,  headers] = process_options(varargin,...
+        'miMinValue', 0, 'miMaxValue', 0,  'sMinValue', 1, 'sMaxValue',1, 'betaMinValue', 0.1, 'betaMaxValue', 0.9, ...
+        'pMinOrder', 1, 'pMaxOrder', 2, 'headers', arrayfun(@(x)sprintf('x%i',x),1:numNodes,'uniformOutput',false));
+
 else
     fprintf('Unknown data type: %s\n', type);
     return;
 end
 
-if isequal(type, 'discrete');
+if isequal(type, 'discrete')
     %let's follow the topographical order ;-)
     for i = order
 
@@ -66,27 +72,29 @@ if isequal(type, 'discrete');
         %name, parents, number of states and domain counts of the node
         node.name = headers{i};
         node.parents = find(graph(:,i));
-        numStates = round(rand()*(maxNumStates - minNumStates) + minNumStates);
+        numStates = round(rand()*(maxNumStates(i) - minNumStates(i)) + minNumStates(i));
         domainCounts(i) = numStates;
-
+        rnode=node;
         %let's create the cpt...
         if isempty(node.parents)
 
             %firstly, let's sample...
             node.parents = [];
-            node.cpt = dirichletsample(0.5*ones(1,numStates),1);
-
+           % node.cpt = dirichletsample(0.5*ones(1,numStates),1);
+           [theta, theta2] = dirichletsample(alpha(i).*ones(1,numStates),1);
+            node.cpt = theta;
+            rnode.cpt = theta2;
         else
-
-            %agin, sampling
-            node.cpt = dirichletsample(0.5*ones(1,numStates), domainCounts(node.parents));
-
+            [theta, theta2] =dirichletsample(alpha(i).*ones(1,numStates), domainCounts(node.parents));
+            node.cpt = theta;
+            rnode.cpt = theta2;
         end
 
         nodes{i} = node;
+        rnodes{i}= rnode;
 
     end
-elseif isequal(type, 'gaussian') % gaussian
+elseif isequal(type, 'linear') % gaussian
     for i=1:numNodes
 
         clear tempNode options cOptions
@@ -101,13 +109,32 @@ elseif isequal(type, 'gaussian') % gaussian
         tempNode.s = (sMaxValue - sMinValue)*rand()+sMinValue;
 
         nodes{i} = tempNode; 
+    end
+    domainCounts =[];
+
+elseif isequal(type, 'polynomial') % polynomial
+    for i=1:numNodes
+
+        clear tempNode options cOptions
+        tempNode.name = headers{i};
+        tempNode.parents = find(graph(:,i))';
+        numParents = length(tempNode.parents);
+        signs = (-1).^floor(rand(1, numParents).*2);
+        tempNode.p = randi([pMinOrder, pMaxOrder],1, numParents);
+        tempNode.beta =[betaMinValue + (betaMaxValue-betaMinValue).*rand(1,numParents)].*signs;
+
+    
+        tempNode.mi = (miMaxValue - miMinValue)*rand()+miMinValue;
+        tempNode.s = (sMaxValue - sMinValue)*rand()+sMinValue;
+
+        nodes{i} = tempNode; 
     
     end
     domainCounts =[];
 
 end
 end
-function theta = dirichletsample(alpha, dims)
+function [theta, theta2] = dirichletsample(alpha, dims)
 % SAMPLE_DIRICHLET Sample N vectors from Dir(alpha(1), ..., alpha(k))
 % theta = sample_dirichlet(alpha, N)
 % theta(i,j) = i'th sample of theta_j, where theta ~ Dir
@@ -122,9 +149,8 @@ for i=1:k
     theta(:,i) = gamrnd(alpha(i), scale, N, 1);
 end
 S = sum(theta,2);
-theta = theta ./ repmat(S, 1, k);
-
+theta2 = theta ./ repmat(S, 1, k);
 %let's reshape theta following dims...
-theta = reshape(theta', numel(theta), 1);
+theta = reshape(theta2', numel(theta), 1);
 theta = reshape(theta, [k dims]);
 end

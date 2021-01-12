@@ -1,4 +1,4 @@
-function pag =  mag2pag(mag)
+function [pag, dnc, col, ddnc, dcol] =  mag2pag(mag)
 % function PAG = MAG2PAG(MAG)
 % Converts a MAG into a PAG 
 % Author:  striant@csd.uoc.gr
@@ -15,21 +15,21 @@ function pag =  mag2pag(mag)
 pag = mag;
 
 pag(~~pag)=1;
-pag =  FCI_rules_mag(pag, mag, false);
+[pag, dnc, col, ddnc, dcol] =  FCI_rules_mag(pag, mag, false);
 end
 
-function [G, dnc, flagcount] = FCI_rules_mag(G, mag, screen)
+function [G, dnc, col, ddnc, dcol, flagcount] = FCI_rules_mag(G, mag, screen)
 flagcount =0;
  unshieldedtriples = getUnshieldedTriples(G);
-[G, dnc] = R0(G, unshieldedtriples, mag, screen);
-
+[G, dnc, col] = R0(G, unshieldedtriples, mag, screen);
+ddnc= []; dcol= [];
 flag=1;
 while(flag)
     flag=0;
     [G,flag] = R1(G, flag, screen);
     [G,flag] = R2(G, flag, screen);
     [G,flag] = R3(G, flag, screen);
-    [G,flag] = R4(G, mag, flag, screen);
+    [G, ddnc, dcol,flag] = R4(G, mag, ddnc, dcol, flag, screen);
     flagcount =  flagcount+flag;
 end
 
@@ -43,7 +43,7 @@ end
 
 end
 
-function [Pag, dnc] = R0(Pag, unshieldedtriples, mag, screen)
+function [Pag, dnc, col] = R0(Pag, unshieldedtriples, mag, screen)
 %fprintf('orienting unshielded triples\n');
 
 % If a b not adjacent, c not in sepSet(a,b) => a->c<-b
@@ -64,6 +64,7 @@ for c = 1:nnodes
           end
         end
         dnc{c} = curtriples(sep,:);
+        col{c}=curtriples(~sep,:);
         Pag(curtriples(~sep,1),c) = 2;
         Pag(curtriples(~sep,2),c) = 2;
         
@@ -75,6 +76,7 @@ for c = 1:nnodes
         end
     else
         dnc{c} = zeros(0,2);
+        col{c} = zeros(0, 2);
     end
 end
 
@@ -145,8 +147,7 @@ end
 
 end
 
-function [Pag, flag] = R4(Pag, mag, flag, screen)
-
+function [Pag, ddnc, dcol, flag] = R4(Pag, mag, ddnc, dcol, flag, screen)
 % Start from some node X, for node Y
 % Visit all possible nodes X*->V & V->Y
 % For every neighbour that is bi-directed and a parent of Y, continue
@@ -204,6 +205,8 @@ for curc = 1:nnodes
                     end
                     Pag(curb, curc) = 2;
                     Pag(curc, curb) = 3;
+                    ddnc = [ddnc; cura curb curc];
+
                 else
                     if(screen)
                         fprintf('R4: Orienting %d<->%d\n',curb,curc);
@@ -211,6 +214,7 @@ for curc = 1:nnodes
                     Pag(curb, curc) = 2;
                     Pag(curc, curb) = 2;
                     Pag(cura, curb) = 2;
+                    dcol = [dcol; cura curb curc];
                 end
                 flag = 1;
                 break;

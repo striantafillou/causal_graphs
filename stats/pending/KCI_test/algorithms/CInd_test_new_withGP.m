@@ -64,7 +64,7 @@ if IF_GP
     % disp('  covfunc = {''covSum'', {''covSEard'',''covNoise''}};')
     covfunc = {'covSum', {'covSEard','covNoise'}};
     logtheta0 = [log(width)*ones(D,1); 0; log(sqrt(0.1))];
-    fprintf('Optimization hyperparameters in GP regression:\n');
+    %fprintf('Optimization hyperparameters in GP regression:\n');
     %     [logtheta_x, fvals_x, iter_x] = minimize(logtheta0, 'gpr_multi', -150, covfunc, z, 1/std(eix(:,1)) * eix);
     %     [logtheta_y, fvals_y, iter_y] = minimize(logtheta0, 'gpr_multi', -150, covfunc, z, 1/std(eiy(:,1)) * eiy);
     % -200 or -350?

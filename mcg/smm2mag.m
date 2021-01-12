@@ -14,7 +14,7 @@ function mag = smm2mag(smm)
 nVars = size(smm,1);
 mag = zeros(nVars);
 dag =  zeros(size(smm));
-[directedEdgesX, directedEdgesY] =  find(smm ==2 & smm' ==3);
+[directedEdgesX, directedEdgesY] =  find(smm ==2 & smm' ~=2);
 dag(sub2ind(size(dag),directedEdgesX,directedEdgesY))=1;    
     
 isAncestor = transitiveClosureSparse_mex(sparse(dag));

@@ -1,4 +1,4 @@
-function [ h ] = shadedBar( x, m, stds, color,line )
+function [ h ] = shadedBar( x, m, stds, color,line)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 x=reshape(x, 1, length(x));
@@ -11,12 +11,12 @@ x1 = [x fliplr(x)];
 
 
 y= [m-stds fliplr(m+stds)];
-h = fill(x1,y,color, 'linestyle', 'none');
+h.fill = fill(x1,y,color, 'linestyle', 'none');
 % Choose a number between 0 (invisible) and 1 (opaque) for facealpha.  
 if line
-    set(h,'facealpha',.1)
+    set(h.fill,'facealpha',.1)
     hold on;
-    plot(x, m, 'color', color, 'linewidth', 2);
+    h.plot= plot(x, m, 'color', color, 'linewidth', 2);
 end
 end
 

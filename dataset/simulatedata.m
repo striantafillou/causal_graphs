@@ -34,12 +34,12 @@ function dataset=simulatedata(nodes, numCases,  type, varargin)
 %                           variables)
 %    .isLatent            = nVars x 1 boolean vector, true for latent
 %                           variables
-%    .isManipulated       = nVars x 1 boolean vector, true for manipulated
+%    .isManipulated       = nVars x 1 boolean vector, true for manipulatedn
 %                           variables  
 %   .type                 = type of data set (discrete, gaussian)
 % =======================================================================
 numNodes=length(nodes);
-[domainCounts, isLatent, isManipulated, verbose] = process_options(varargin, 'domainCounts', 2*ones(1, numNodes), 'isLatent',  false(1, numNodes),'isManipulated', false(1, numNodes),  'verbose', false);
+[domainCounts, isLatent, isManipulated, verbose] = process_options(varargin, 'domainCounts', [], 'isLatent',  false(1, numNodes),'isManipulated', false(1, numNodes),  'verbose', false);
 dataset.isLatent = isLatent;
 dataset.isManipulated = isManipulated;
 headers = cell(1, numNodes);
@@ -69,7 +69,7 @@ if isequal(type, 'discrete')
     dataset.data = data;
     dataset.domainCounts = domainCounts;
     dataset.type = 'discrete';
-elseif isequal(type, 'gaussian')
+elseif isequal(type, 'linear')
 %first step: creating the dataset
     edges=0;
      for i=1:numNodes
@@ -106,6 +106,30 @@ elseif isequal(type, 'gaussian')
     dataset.data = data;
     dataset.domainCounts =[];
     dataset.type = 'continuous';
+    
+elseif isequal(type, 'polynomial')
+%first step: creating the dataset
+    edges=0;
+     for i=1:numNodes
+        headers{i} = nodes{i}.name;
+        edges=edges+length(nodes{i}.parents);
+    end
+    graph=spalloc(numNodes,numNodes,edges);
+    for i=1:numNodes
+        graph(nodes{i}.parents,i) = 1;
+    end
+    ord=graphtopoorder(sparse(graph));
+
+  
+    data=zeros(numCases, length(nodes));
+    for node=ord
+      % Sample
+      data(:, node)=randomSamplePolynomial(nodes{node}, data(:, nodes{node}.parents), numCases);                            
+    end
+
+    dataset.data = data;
+    dataset.domainCounts =[];
+    dataset.type = 'continuous';
 else % type is unknown
     errprintf('Unknown data type:%s\n', type);
     dataset = nan;
@@ -117,7 +141,6 @@ function value = randomSampleDiscrete(cpt, instance)
 % value = RANDOMSAMPLEDISCRETE(CPT, INSTANCE)
 % Returns a value for a discrete variable using the conditional probability table
 % cpt, for parent instanciation instance.
-
 if(isempty(instance))
     x = 1;
 else
@@ -140,6 +163,24 @@ function value = randomSampleGaussian(node, instance, numCases)
 %calculate the normal distribution mean conditioned by parents value
 if ~isempty(instance)
     distrMean = [node.mi + (node.beta * instance')]';
+else
+    distrMean = node.mi;
+end
+
+%normal distribution standard deviation
+distrS = node.s*ones(numCases, 1);
+
+%calculate the node value
+value = normrnd(distrMean, distrS, numCases,1);
+end
+
+function value = randomSamplePolynomial(node, instance, numCases)
+% value = RANDOMSAMPLEPOLYNOMIAL(NODE, INSTANCE) Returns a value y = beta
+% *instance.^p+e for a conditional variable with parent instanciation instance
+
+%calculate the normal distribution mean conditioned by parents value
+if ~isempty(instance)
+    distrMean = [node.mi + (node.beta * [instance.^node.p]')]';
 else
     distrMean = node.mi;
 end
