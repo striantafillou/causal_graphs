@@ -24,10 +24,15 @@ function Y =findmseparations(mcg, X, conditionToNodes, isAnc, isLatent)
 
 %global isDescendant;
 %does not check if(graph not square or A,B not disjoint or A+B>V)...
-
 reachable=[];
 edges=zeros(size(mcg));
 numOfVariables=size(mcg,1);
+if nargin <5
+    isLatent= false(1, numOfVariables);
+end
+if nargin <4;
+    isAnc  =  findancestors(mcg);
+end
 
 inConditionSet=zeros(numOfVariables,1)';
 inConditionSet(conditionToNodes)=1;

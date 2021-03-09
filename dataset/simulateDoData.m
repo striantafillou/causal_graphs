@@ -127,21 +127,3 @@ distrS = node.s*ones(numCases, 1);
 %calculate the node value
 value = normrnd(distrMean, distrS, numCases,1);
 end
-
-function value = randomSamplePolynomial(node, instance, numCases)
-% value = RANDOMSAMPLEPOLYNOMIAL(NODE, INSTANCE) Returns a value y = beta
-% *instance.^p+e for a conditional variable with parent instanciation instance
-
-%calculate the normal distribution mean conditioned by parents value
-if ~isempty(instance)
-    distrMean = [node.mi + (node.beta * [instance.^node.p]')]';
-else
-    distrMean = node.mi;
-end
-
-%normal distribution standard deviation
-distrS = node.s*ones(numCases, 1);
-
-%calculate the node value
-value = normrnd(distrMean, distrS, numCases,1);
-end

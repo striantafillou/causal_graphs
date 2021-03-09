@@ -99,12 +99,12 @@ while(flag)
     [graph, ddnc, dcols, flag] = R4(graph, sepSet, ddnc, dcol, flag, verbose);
 end    
 % Iteratively apply rules R8-R10 until none of them applies
-flag=1;
-while(flag)
-    flag=0;
-    [graph,flag] = R8(graph, flag, verbose);
-    [graph,flag] = R9_R10(graph, dnc, flag, verbose);
-end 
+% flag=1;
+% while(flag)
+%     flag=0;
+%     [graph,flag] = R8(graph, flag, verbose);
+%     [graph,flag] = R9_R10(graph, dnc, flag, verbose);
+% end 
 
 % Apply orientation rules
 % Apply R0: Orient unshielded colliders

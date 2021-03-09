@@ -12,7 +12,7 @@ function dataset=simulatedata(nodes, numCases,  type, varargin)
 % numCases                = Number of samples desired
 %                           variable, (empty matrix for continuous
 %                           variables) 
-% type                    = type of nodes: discrete or gaussian
+% type                    = type of nodes: discrete or linear
 %                           in future versions this should be decided a
 %                           field of th network.
 %   [...] = simulatedata(...,'PARAM1',VAL1,'PARAM2',VAL2,...) specifies additional
