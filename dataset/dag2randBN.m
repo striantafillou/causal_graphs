@@ -1,3 +1,4 @@
+
 function [nodes, domainCounts, order, rnodes] = dag2randBN(graph, type,  varargin)
 % function [nodes, domainCounts] = dag2randBN(graph, type,  varargin)
 % Converts a DAG into a BN with random parameters. Author:
@@ -49,9 +50,13 @@ if isequal(type, 'discrete')
         arrayfun(@(x)sprintf('x%i',x),1:numNodes, 'uniformOutput',false), 'alpha',ones(1, numNodes));
 elseif isequal(type, 'linear')
     [miMinValue, miMaxValue, sMinValue, sMaxValue, betaMinValue, betaMaxValue, headers] = process_options(varargin,...
-        'miMinValue', 0, 'miMaxValue', 0,  'sMinValue', 1, 'sMaxValue',1, 'betaMinValue', 0.1, 'betaMaxValue', 0.9, 'headers', ...
+        'miMinValue', -5, 'miMaxValue', 5,  'sMinValue', 1, 'sMaxValue',10, 'betaMinValue', 0.1, 'betaMaxValue', 0.9, 'headers', ...
         arrayfun(@(x)sprintf('x%i',x),1:numNodes,'uniformOutput',false));
-    
+elseif isequal(type, 'mixed')
+    [numStates, miMinValue, miMaxValue, sMinValue, sMaxValue, betaMinValue, betaMaxValue, logMinValue, logMaxValue,  headers] = process_options(varargin,...
+        'numStates', 2*ones(1,numNodes), ...
+        'miMinValue', 0, 'miMaxValue', 0,  'sMinValue', 1, 'sMaxValue',1, 'betaMinValue', 0.1, 'betaMaxValue', 3, 'logMinValue', -2, 'logMaxValue', 1,...
+        'headers', arrayfun(@(x)sprintf('x%i',x),1:numNodes,'uniformOutput',false));    
 elseif isequal(type, 'polynomial')
     [miMinValue, miMaxValue, sMinValue, sMaxValue, betaMinValue, betaMaxValue, pMinOrder, pMaxOrder,  headers] = process_options(varargin,...
         'miMinValue', 0, 'miMaxValue', 0,  'sMinValue', 1, 'sMaxValue',1, 'betaMinValue', 0.1, 'betaMaxValue', 0.9, ...
@@ -65,10 +70,8 @@ end
 if isequal(type, 'discrete')
     %let's follow the topographical order ;-)
     for i = order
-
         %info
         %fprintf('Node %d of %d\n', i, length(order))
-
         %name, parents, number of states and domain counts of the node
         node.name = headers{i};
         node.parents = find(graph(:,i));
@@ -96,7 +99,6 @@ if isequal(type, 'discrete')
     end
 elseif isequal(type, 'linear') % gaussian
     for i=1:numNodes
-
         clear tempNode options cOptions
         tempNode.name = headers{i};
         tempNode.parents = find(graph(:,i))';
@@ -114,7 +116,6 @@ elseif isequal(type, 'linear') % gaussian
 
 elseif isequal(type, 'polynomial') % polynomial
     for i=1:numNodes
-
         clear tempNode options cOptions
         tempNode.name = headers{i};
         tempNode.parents = find(graph(:,i))';
@@ -122,16 +123,62 @@ elseif isequal(type, 'polynomial') % polynomial
         signs = (-1).^floor(rand(1, numParents).*2);
         tempNode.p = randi([pMinOrder, pMaxOrder],1, numParents);
         tempNode.beta =[betaMinValue + (betaMaxValue-betaMinValue).*rand(1,numParents)].*signs;
-
     
-        tempNode.mi = (miMaxValue - miMinValue)*rand()+miMinValue;
-        tempNode.s = (sMaxValue - sMinValue)*rand()+sMinValue;
+        tempNode.mi = (miMaxValue - miMinValue)*rand() + miMinValue;
+        tempNode.s = (sMaxValue - sMinValue)*rand() + sMinValue;
 
         nodes{i} = tempNode; 
     
     end
     domainCounts =[];
+    
+elseif isequal(type, 'mixed') % mixed model with P(Y|Z)conditional Gaussian if Y is discrete, and P(Y|Z) logistic if Y is binary
+    domainCounts=numStates;
+    for i=1:numNodes
+        clear tempNode options cOptions
+        tempNode.name = headers{i};
+        tempNode.dc = numStates(i);
+        %find parents
+        tempNode.parents= find(graph(:,i))';numParents = length(tempNode.parents);
+        tempNode.isContPar = isnan(numStates(tempNode.parents));nContParents = sum(tempNode.isContPar);
+        tempNode.isDiscPar = ~isnan(numStates(tempNode.parents));nDiscParents = sum(tempNode.isDiscPar);
 
+        if isnan(numStates(i)) % if iNode is continuous          
+            if any(tempNode.isDiscPar)
+                allConfigs = allConfigurations(nDiscParents, numStates(tempNode.parents(tempNode.isDiscPar)));
+                nConfigs = size(allConfigs,1);
+            else 
+                nConfigs=1;
+                allConfigs=[];
+            end
+            tempNode.configs = allConfigs;
+            tempNode.beta = nan(nConfigs,nContParents);
+            tempNode.mi = nan(nConfigs, 1);
+            tempNode.s = nan(nConfigs, 1);
+            for iConfig =1:nConfigs
+                signs = (-1).^floor(rand(1, nContParents).*2);
+                tempNode.beta(iConfig, :) =[betaMinValue + (betaMaxValue-betaMinValue).*rand(1,nContParents)].*signs;
+                tempNode.mi(iConfig) = (miMaxValue - miMinValue)*rand()+miMinValue;
+                tempNode.s(iConfig) = (sMaxValue - sMinValue)*rand()+sMinValue;
+            end
+        elseif numStates(i) == 2
+            if isempty(tempNode.parents)
+               [theta, theta2] = dirichletsample(ones(1,numStates(i)),1);
+               tempNode.cpt = theta;
+            elseif ~any(tempNode.isContPar)
+               [theta, theta2] =dirichletsample(ones(1,numStates(i)), numStates(tempNode.parents(tempNode.isDiscPar)));
+                tempNode.cpt = theta;
+            else
+                signs = (-1).^floor(rand(1, numParents+1).*2);
+                tempNode.beta =[logMinValue + (logMaxValue-logMinValue).*rand(1,numParents+1)].*signs;
+            end
+        else 
+            errprintf('DomainCounts %d not supported yet\n', numStates(i));
+            
+        end  % end if discrete
+    nodes{i} = tempNode; 
+    
+    end
 end
 end
 function [theta, theta2] = dirichletsample(alpha, dims)

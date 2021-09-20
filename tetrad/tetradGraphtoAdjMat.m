@@ -16,5 +16,5 @@ for iNode = 1:nVars
 
     pdag(iNode, adjNodes)=1; pdag(adjNodes,iNode)=1;
     pdag(iNode, parents)=0;
-%    printedgespdag(pdag);
 end
+

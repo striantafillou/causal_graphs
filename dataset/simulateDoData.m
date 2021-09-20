@@ -55,7 +55,7 @@ if isequal(type, 'discrete')
 
         edges=0;
         for i=1:numNodes
-            headers{i} = nodes{i}.name;
+         %   headers{i} = nodes{i}.name;
             edges=edges+length(nodes{i}.parents);
         end
         graph=spalloc(numNodes,numNodes,edges);
